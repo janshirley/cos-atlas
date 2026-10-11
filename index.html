@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090b10">
+<title>COS / ATLAS</title>
+<style>
+:root{--bg:#080b10;--surface:#0f141c;--muted:#8290a6;--text:#e9edf3;--line:rgba(161,182,213,.14);--focus:#bdd4f3;--soft:#adb8c9;--side:292px}
+*{box-sizing:border-box}
+html, body{min-height:100%;margin:0}
+html{color-scheme:dark}
+body{background:var(--bg);color:var(--text);font:13px/1.65 "Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button, input{font:inherit}
+button:focus-visible, input:focus-visible{outline:2px solid #b4ccec;outline-offset:3px}
+button:disabled{cursor:not-allowed;opacity:.4}
+::selection{background:#6c83aa66;color:white}
+h1, h2, h3, p{margin:0}
+button{cursor:pointer;color:inherit;touch-action:manipulation}
+.hidden{display:none!important}
+.topbar{height:67px;position:fixed;z-index:90;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:0 34px;background:rgba(9,12,17,.89);backdrop-filter:blur(18px);border-bottom:1px solid #aab4c31a}
+.brand{display:flex;align-items:center;gap:14px;letter-spacing:.22em;font-weight:620;font-size:13px}
+.brand .mark{display:inline-grid;place-items:center;width:25px;height:25px;border:1px solid #889db775;border-radius:50%;font-size:15px;letter-spacing:0;color:#ced6e5}
+.brand small{font-size:10px;color:#66758a;letter-spacing:.15em;font-weight:400}
+.navbtn{border:1px solid transparent;background:transparent;border-radius:7px;padding:7px 14px;color:#8796a9;font-size:11px;transition:.2s}
+.navbtn:hover{color:#f0f4f8}
+.navbtn.active{border-color:#99b1cc42;background:#1923319e;color:#e2eaf4}
+#sky{position:fixed;inset:67px 0 0;width:100%;height:calc(100vh - 67px);z-index:1;touch-action:none}
+#universe{position:fixed;inset:67px 0 0;z-index:2;pointer-events:none;overflow:hidden}
+#universe:not(.active){display:none}
+.universeIntro{position:absolute;left:7.2%;top:17%;max-width:455px;pointer-events:none}
+.eyebrow{font-size:10px;letter-spacing:.29em;color:#8399b7}
+.universeIntro h1{font-size:clamp(36px,3.8vw,58px);line-height:1.26;font-weight:350;letter-spacing:.035em;margin:20px 0 20px}
+.universeIntro h1 span{color:#8fa6c5}
+.universeIntro p{color:#8999ae;max-width:330px;line-height:2.1;font-size:12px}
+.universeBottom{position:absolute;bottom:35px;right:44px;text-align:right;color:#9baec3;font-size:11px}
+.universeBottom small{display:block;color:#64758a;font-size:10px;letter-spacing:.13em;margin-top:6px}
+.universeCTA{margin-top:27px;pointer-events:auto;border:1px solid #8297b74f;background:#1b293a79;padding:11px 18px;border-radius:7px;color:#dce8f5;font-size:12px;letter-spacing:.06em}
+.universeCTA:hover{background:#243953ad}
+.universeSearch{position:absolute;bottom:31px;left:7.2%;color:#73849a;font-size:10px;letter-spacing:.14em}
+#character{position:fixed;top:67px;bottom:0;left:0;right:0;z-index:4;display:none;background:linear-gradient(125deg,#080b10,#0b1018 64%,#080b10)}
+#character.active{display:flex}
+.bio{width:var(--side);flex:0 0 var(--side);border-right:1px solid #8196b21f;position:relative;background:linear-gradient(90deg,#0a0e15,#0c1119);padding:32px 29px 25px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#344050 transparent}
+.back{border:0;background:none;color:#9dafc3;padding:0;font-size:11px}
+.back:hover{color:white}
+.bio-index{color:#657b98;font-size:10px;letter-spacing:.25em;margin-top:47px}
+.portrait-ring{height:112px;width:112px;border:1px solid #8298b052;border-radius:50%;display:grid;place-items:center;position:relative;margin:23px 0 26px;background:radial-gradient(circle at 50% 44%,#56698331,transparent 67%)}
+.portrait-ring:before{content:"";position:absolute;inset:13px;border:1px solid #b9cada25;border-radius:50%}
+.portrait-ring:after{content:"";width:8px;height:8px;background:#d6e9ff;border-radius:50%;box-shadow:0 0 16px #92beef}
+.portrait-ring .orbit{position:absolute;inset:-7px 17px;transform:rotate(29deg);border:1px solid #b2c4d13a;border-radius:50%}
+.bio h1{font-size:29px;font-weight:450;letter-spacing:.025em;line-height:1.23}
+.bio .source{color:#92a6bc;margin-top:10px;font-size:12px;line-height:1.8}
+.bio .intro{margin-top:25px;color:#8898aa;line-height:2.05;font-size:12px}
+.rule{height:1px;background:linear-gradient(90deg,#9badc14b,transparent);margin:27px 0}
+.sectionhead{font-size:10px;letter-spacing:.2em;color:#6f8298}
+.large-number{font-size:35px;font-weight:300;color:#e4eaf2;line-height:1.6}
+.large-number small{font-size:11px;color:#8292a7;letter-spacing:0;margin-left:8px}
+.bio-roles{margin-top:24px;display:flex;gap:6px;flex-wrap:wrap}
+.bio-pill{border:1px solid #8ca0ba33;border-radius:5px;padding:5px 8px;color:#92a4ba;font-size:10px;background:#131e2a66}
+.bio-pill:hover, .bio-pill.active{color:#e8eff9;border-color:#9bb4d17a}
+.workspace{flex:1;min-width:0;position:relative;display:flex;flex-direction:column;overflow:hidden}
+.workspace:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 46% 38% at 48% 53%,#1e2d452a,transparent 85%),radial-gradient(ellipse 38% 45% at 80% 30%,#30273b17,transparent 80%)}
+.worktop h2{font-size:19px;font-weight:450;letter-spacing:.04em;margin-top:4px}
+.control-stack{display:flex;flex-direction:column;gap:5px}
+.control-stack label{font-size:9px;letter-spacing:.13em;color:#778aa0}
+.segment{display:flex;border:1px solid #8d9fb834;background:#121b27bb;padding:3px;border-radius:7px;gap:3px}
+.segment button{border:0;background:transparent;color:#8596ac;padding:7px 11px;border-radius:5px;font-size:11px;white-space:nowrap}
+.segment button.active{background:#35445a;color:#f2f6fc}
+.reset{padding:8px 10px;border:0;background:transparent;color:#91a4b9;font-size:11px;white-space:nowrap}
+.reset:hover{color:white}
+.workbody{flex:1;min-height:0;position:relative;display:grid;grid-template-columns:minmax(440px,1fr) 342px}
+.time-label{position:sticky;top:0;z-index:5;padding:15px 34px;font-size:9px;color:#8196ad;letter-spacing:.21em;background:linear-gradient(#0b1018 45%,transparent);pointer-events:none}
+.arc-item[data-place="0"]{left:41%;top:13%}
+.arc-item[data-place="1"]{left:73%;top:34%}
+.arc-item[data-place="2"]{left:35%;top:57%}
+.arc-item[data-place="3"]{left:66%;top:80%}
+.order-num{position:absolute;font-size:10px;letter-spacing:.15em;color:#8196b0;top:-39px;left:-15px;width:100px;pointer-events:none}
+.card3d{perspective:1100px;cursor:pointer;position:relative;display:block}
+.card3d-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .66s cubic-bezier(.2,.8,.2,1)}
+.card3d.is-cos .card3d-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;overflow:hidden;border-radius:3px;isolation:isolate;background:#151b28}
+.face.cos{transform:rotateY(180deg)}
+.face .illustration{position:absolute;inset:0;overflow:hidden;background:linear-gradient(145deg,var(--tone-a),var(--tone-b))}
+.face .illustration:before{content:"";position:absolute;left:-35%;top:-28%;height:110%;width:160%;border-radius:50%;background:radial-gradient(ellipse at center,var(--halo),transparent 60%);transform:rotate(-30deg)}
+.face .illustration:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#060914d6,transparent 42%,#090b171b)}
+.figure{position:absolute;width:74%;height:83%;left:14%;bottom:-16%;filter:drop-shadow(0 12px 18px #0007)}
+.figure .head{position:absolute;left:25%;top:9%;width:48%;height:34%;border-radius:44% 43% 44% 44%;background:linear-gradient(110deg,#bfc5ce,#626d80 65%,#353e52);z-index:2;transform:rotate(-6deg)}
+.figure .hair{position:absolute;left:15%;top:-1%;width:70%;height:52%;border-radius:56% 52% 29% 39%;background:linear-gradient(125deg,var(--hair),#353f57b0);filter:blur(.6px);transform:rotate(-8deg)}
+.figure .body{position:absolute;bottom:0;left:0;width:100%;height:61%;border-radius:40% 43% 0 0;background:linear-gradient(140deg,#8793aa,#242d42 70%,#121928);transform:rotate(5deg)}
+.face.cos .figure{left:19%;width:68%;transform:rotate(4deg)}
+.face.cos .figure .hair{background:linear-gradient(130deg,var(--hair2),#2e3446)}
+.face.cos .figure .body{background:linear-gradient(140deg,var(--outfit),#25283a 73%)}
+.face .card-stroke{position:absolute;inset:8px;border:1px solid #dce6ee3b;z-index:5;pointer-events:none}
+.face .type{position:absolute;top:13px;left:15px;color:#e4eef8cc;letter-spacing:.21em;font-size:8px;z-index:6}
+.face .bottomtext{position:absolute;bottom:12px;left:14px;right:10px;font-size:9px;letter-spacing:.12em;color:#eff4fc;z-index:6}
+.face .art-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:4}
+.face .art-image+.card-stroke{z-index:5}
+#gallery{position:fixed;z-index:200;inset:0;background:rgba(3,6,10,.94);backdrop-filter:blur(25px);display:none;align-items:center;justify-content:center;padding:30px}
+#gallery.open{display:flex}
+.gallery-shell{width:min(1060px,100%);max-height:90vh;overflow:auto;background:linear-gradient(128deg,#121a26,#0b1018);border:1px solid #8da1ba42;box-shadow:0 20px 100px #000d;border-radius:9px;padding:27px}
+.gallery-head{display:flex;justify-content:space-between;gap:16px;align-items:start}
+.gallery-head small{font-size:10px;letter-spacing:.21em;color:#8fa5bb}
+.gallery-head h2{font-size:23px;font-weight:450;margin-top:7px}
+.gallery-head p{font-size:11px;color:#8296ab;margin-top:7px}
+.gallery-close{border:1px solid #8498b249;background:transparent;color:#d2ddeb;padding:5px 12px;border-radius:5px}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:25px}
+.gallery-photo{min-height:210px;aspect-ratio:3/4;border:1px solid #7f91ab42;border-radius:5px;position:relative;overflow:hidden;background:linear-gradient(145deg,var(--g1),var(--g2));display:grid;place-items:center}
+.gallery-photo:before{content:"";position:absolute;width:90%;aspect-ratio:1;border:1px solid #a8b8d14c;border-radius:50%;transform:rotate(25deg)}
+.gallery-photo:after{content:"";position:absolute;width:45%;height:65%;bottom:-12%;border-radius:50% 50% 0 0;background:linear-gradient(130deg,#bdc7d257,#273a5266);filter:blur(5px)}
+.gallery-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2}
+.gallery-photo span{position:absolute;z-index:3;left:15px;bottom:12px;font-size:10px;color:#e8f0ff;letter-spacing:.13em}
+#toast{position:fixed;z-index:300;left:50%;bottom:25px;transform:translate(-50%,10px);border:1px solid #9faec34d;background:#1b2938ee;border-radius:7px;padding:10px 17px;font-size:11px;color:#d9e8f6;opacity:0;pointer-events:none;transition:.2s}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.worktop{z-index:8;display:flex;align-items:center;justify-content:space-between;padding:19px 36px 14px;border-bottom:1px solid #9fb0c014;min-height:104px;height:auto;flex:0 0 auto;gap:22px}
+.work-controls{display:flex;align-items:center;flex-wrap:wrap;gap:14px;justify-content:flex-end}
+.workbody.cards-mode{display:block;overflow:auto;scrollbar-width:thin;scrollbar-color:#35465c transparent}
+.cards-gridview{display:none;position:relative;z-index:2;padding:28px clamp(20px,4vw,60px) 65px;min-height:100%}
+.cards-mode .cards-gridview{display:block}
+.cards-mode .time-wrap{display:none}
+.cards-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:29px;color:#91a6c0;font-size:10px;letter-spacing:.16em}
+.cards-heading small{color:#75869c;font-size:10px;letter-spacing:.06em}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:28px 22px;align-items:start;max-width:1160px;margin:0 auto}
+.gallery-look{min-width:0;border:1px solid #8da0b136;background:linear-gradient(145deg,#111a25b8,#090e15b8);padding:9px 9px 14px;border-radius:9px;transition:transform .2s,border-color .2s}
+.gallery-look:hover{transform:translateY(-5px);border-color:#9ab5d185}
+.grid-card{position:relative;width:100%;aspect-ratio:3/4.22;display:block;padding:0;border:none;background:#111925;border-radius:5px;overflow:hidden;box-shadow:0 18px 28px #0007}
+.grid-card .card3d{width:100%;height:100%}
+.grid-caption{padding:13px 4px 0}
+.grid-year{color:#8aa0b9;font-size:10px;letter-spacing:.12em;min-height:17px}
+.grid-name{color:#e1e8f0;font-size:12px;margin:6px 0 9px;min-height:39px;line-height:1.55}
+.grid-open{border:1px solid #8397b14d;background:#182433d4;color:#c9d8e9;border-radius:5px;padding:7px 9px;font-size:10px;width:100%}
+.grid-open:hover{background:#294058;border-color:#b1c7e2}
+.time-wrap{position:relative;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#34445a transparent;overscroll-behavior:contain;background:radial-gradient(ellipse at 45% 50%,#1522355b,transparent 64%)}
+.arc-canvas{position:relative;height:1030px;margin:0 auto 35px;isolation:isolate;width:min(100%,650px)}
+.timeline-bubble:hover{border-color:#d8e6f8;box-shadow:0 0 0 8px #aac9f014,0 0 38px #7ea6cf72;scale:1.04}
+.timeline-bubble .card3d{position:absolute;inset:0;width:100%;height:100%}
+.timeline-bubble .face .card-stroke, .timeline-bubble .face .bottomtext, .timeline-bubble .face .type{display:none}
+.timeline-bubble .face .figure{width:115%;left:-7%;height:108%;bottom:-30%}
+.timeline-bubble .face .illustration{border-radius:50%}
+.timeline-bubble .face.cos .figure{left:-1%;width:105%}
+.node-label{position:absolute;top:-17px;left:70px;width:205px;pointer-events:none}
+.node-label span{display:block;color:#849ab3;font-size:10px;letter-spacing:.12em}
+.node-label b{display:block;margin-top:7px;color:#d2e0ef;font-weight:450;font-size:13px;line-height:1.55}
+.nav{display:flex;align-items:center;gap:3px}
+.add-nav{border-color:#96adc34d;background:#1b2a3bbd;color:#dce7f5}
+.status{font-size:10px;letter-spacing:.1em;color:#9bb0c9;border:1px solid #8ca4bf3b;border-radius:20px;padding:4px 9px;margin-left:5px}
+.universe-filter{position:absolute;bottom:84px;left:7.2%;display:flex;align-items:center;gap:5px;pointer-events:auto;background:#101a27aa;border:1px solid #6b88a635;border-radius:9px;padding:5px 8px;backdrop-filter:blur(12px)}
+.universe-filter span{font-size:10px;color:#7890a7;padding:0 7px}
+.universe-filter button{background:transparent;border:0;border-radius:6px;padding:8px 13px;color:#90a5ba;font-size:11px}
+.universe-filter button:hover, .universe-filter button.active{background:#324861;color:#f3f7fc}
+.role-editactions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.role-editactions button{background:#19253666;border:1px solid #8aa1be4b;border-radius:6px;padding:8px 9px;color:#c0cfdf;font-size:10px}
+.list-page{position:fixed;z-index:5;inset:67px 0 0;background:radial-gradient(ellipse at 78% 16%,#1c293b4f,transparent 50%),#090d14;overflow:auto;display:none;padding:52px max(34px,7vw) 110px}
+.list-page.active{display:block}
+.list-hero{max-width:750px}
+.list-hero .eyebrow{margin-top:58px}
+.list-hero h1{font-size:clamp(30px,3.3vw,45px);font-weight:370;line-height:1.3;margin:14px 0}
+.list-hero h1 span{color:#98b0cd}
+.list-hero p{color:#8193aa;font-size:12px;line-height:1.95}
+.primary-pill{background:#314860;color:#f2f7ff;border:1px solid #9bb8da63;border-radius:7px;padding:10px 16px;font-size:12px}
+.primary-pill:hover{background:#415d7b}
+.wish-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));max-width:1160px;gap:20px}
+.wish-item{padding:10px;background:#101722;border:1px solid #7793b13d;border-radius:9px;min-width:0}
+.wish-preview{width:100%;aspect-ratio:3/4.1;border:0;display:block;position:relative;overflow:hidden;border-radius:5px;padding:0;background:#151e2b;cursor:pointer}
+.wish-preview .card3d{height:100%}
+.wish-preview .face .bottomtext{font-size:9px}
+.wish-status{font-size:9px;letter-spacing:.12em;color:#9aacc0;margin-top:14px}
+.wish-name{font-size:15px;margin:4px 0 5px;color:#eaf0f7}
+.wish-source{font-size:11px;color:#7c90a7;min-height:20px}
+.wish-actions{display:flex;gap:7px;margin-top:14px}
+.wish-actions button{background:#202e42;border:1px solid #7894b447;border-radius:5px;padding:6px 10px;color:#d6e3f1;font-size:10px;flex:1}
+.wish-gear{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:11px;margin-bottom:3px;min-height:50px}
+.gear-tag{display:inline-flex;align-items:center;gap:3px;min-width:0;max-width:100%;padding:0;border-radius:5px;border:1px solid #71859a36;background:#151c27;color:#748294;position:relative}
+.gear-tag .gear-dot{width:5px;height:5px;border-radius:50%;margin-left:7px;background:#5d6979;pointer-events:none;flex:0 0 auto}
+.gear-tag select{appearance:none;-webkit-appearance:none;background:transparent;border:0;outline:none;max-width:100%;color:inherit;font-size:10px;font-family:inherit;cursor:pointer;padding:5px 8px 5px 3px;min-width:0}
+.gear-tag select option{color:#edf3f9;background:#172334}
+.gear-tag:focus-within{outline:1px solid #bfd9f4;outline-offset:2px}
+.gear-tag[data-state="owned"]{color:#dbeaff;border-color:#9abce76b;background:#29405a80}
+.gear-tag[data-state="owned"] .gear-dot{background:#b6d4f4}
+.gear-tag[data-state="rented"]{color:#c6e7e1;border-color:#75ada875;background:#17312e9c}
+.gear-tag[data-state="rented"] .gear-dot{background:#88cabc}
+.gear-tag[data-state="returned"]{color:#88929f;border-color:#7080935c;background:#1c222e8c}
+.gear-tag[data-state="returned"] .gear-dot{background:#818a97}
+.gear-tag[data-state="sold"]{color:#8b93a0;border-color:#7080935c;background:#1c222e8c}
+.gear-tag[data-state="sold"] .gear-dot{background:#818a97}
+.wish-ready{font-size:9px;letter-spacing:.04em;color:#778da3;margin:5px 0 0}
+.wish-empty{grid-column:1/-1;padding:75px 22px;text-align:center;border:1px dashed #8aa1c045;border-radius:12px;color:#8fa3b9}
+.wish-empty h3{font-size:20px;color:#d7e5f5;font-weight:400;margin-bottom:12px}
+.modal-overlay{position:fixed;inset:0;background:#01050bd9;backdrop-filter:blur(9px);z-index:200;display:grid;place-items:center;padding:18px;overflow:auto}
+.modal-overlay[hidden]{display:none}
+.modal-sheet{background:linear-gradient(140deg,#151f2d,#0d131d);width:min(100%,550px);max-height:min(90vh,850px);overflow:auto;padding:26px clamp(20px,3vw,34px);border-radius:12px;border:1px solid #91a8c052;box-shadow:0 24px 100px #000d}
+.small-sheet{max-width:475px}
+.modal-title{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #93abc127;padding-bottom:20px;margin-bottom:20px}
+.modal-title small{font-size:9px;letter-spacing:.16em;color:#8095ad}
+.modal-title h2{font-size:21px;font-weight:450;margin-top:5px}
+.icon-close{border:0;background:none;font-size:22px;color:#91a9c1}
+.form-grid{display:grid;gap:15px}
+.form-grid[hidden]{display:none}
+.form-grid label:not(.choice){display:flex;flex-direction:column;gap:7px;font-size:11px;color:#a7b8cc}
+.form-grid input:not([type="radio"]):not([type="file"]), .form-grid textarea{width:100%;min-width:0;background:#0d1520;border:1px solid #829bb448;border-radius:6px;color:#f4f6fa;padding:10px 12px;font:inherit}
+.form-grid textarea{resize:vertical}
+.form-grid fieldset{border:1px solid #839ab83d;padding:12px 14px;border-radius:7px;display:flex;gap:12px;flex-wrap:wrap}
+.form-grid legend{color:#a7b8cc;font-size:11px;padding:0 6px}
+.choice{font-size:11px;color:#d3dfec}
+.form-grid input[type=file]{font-size:10px;color:#a1b8d0;max-width:100%}
+.form-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-actions{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px}
+.danger-button{border:1px solid #9f6d754e;border-radius:6px;background:#42212c5c;color:#ddb9bd;padding:9px 12px;font-size:11px}
+.small-sheet p{font-size:12px;color:#a0b2c6;line-height:1.95}
+.grid-planned{color:#d9b9e2;font-size:10px;padding-top:5px}
+.timeline-bubble.planned{border-style:dashed;border-color:#c8abd9a0}
+.wishlist-face-only .face.cos{display:none}
+.wishlist-face-only .face.original{backface-visibility:visible}
+.quick-wish{display:flex;gap:10px;margin-top:25px}
+.quick-wish input{width:min(100%,480px);background:#101b29;border:1px solid #819bb65c;border-radius:8px;padding:13px 16px;color:#f4f7fa;font-size:13px;outline:none}
+.quick-wish input:focus{border-color:#b5cbe6}
+.list-toolbar{display:flex;gap:10px;margin:17px 0 30px}
+.subtle-pill{background:transparent;border:1px solid #879caf50;border-radius:7px;padding:8px 13px;font-size:11px;color:#a8bfd7}
+.subtle-pill:hover{background:#26374b}
+.list-toolbar input{max-width:360px;width:100%;border:1px solid #869bb444;color:#e4edfa;border-radius:7px;outline:none;padding:8px 13px;font-size:11px;background:#0d151f}
+.workbody:not(.cards-mode){display:block;overflow:hidden}
+.workbody:not(.cards-mode) .time-wrap{height:100%;max-height:none;min-height:0;overflow:hidden;position:relative;background:radial-gradient(ellipse at 52% 48%,#1d2a3927,transparent 63%),#0a0e15;touch-action:none;user-select:none}
+.arc-stage{position:absolute;inset:0;width:100%!important;height:100%!important;min-height:0!important;margin:0;overflow:hidden;isolation:isolate}
+.arc-stage:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(#7192b122 .65px,transparent .8px);background-size:38px 38px;mask-image:radial-gradient(ellipse at 46% 45%,#000,transparent 75%)}
+.arc-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:hidden}
+.arc-particles{position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(circle at 36% 12%,#a5bed758 1px,transparent 2px),radial-gradient(circle at 70% 79%,#91acdb54 1px,transparent 2px),radial-gradient(circle at 53% 45%,#bbc7df37 1px,transparent 2px)}
+.arc-topfade, .arc-bottomfade{pointer-events:none;position:absolute;left:0;right:0;height:70px;z-index:4}
+.arc-topfade{top:0;background:linear-gradient(#0a0e15 2%,transparent)}
+.arc-bottomfade{bottom:0;background:linear-gradient(transparent,#0a0e15 98%)}
+.timeline-bubble{position:absolute;padding:0;overflow:hidden;border-radius:50%;z-index:2;transition:box-shadow .25s,border-color .25s,scale .25s;width:98px;height:98px;left:0;top:0;transform:translate(-50%,-50%);border:1px solid #b7cce3a1;box-shadow:0 0 0 5px #b5cfed0b,0 0 22px #95b8db22;background:#121923;isolation:isolate}
+.arc-item.selected .timeline-bubble{border-color:#e1ecfa;border:2px solid #f1f5ff;box-shadow:0 0 0 7px #aecaf313,0 0 42px #b2ccf967;scale:1.11}
+.arc-item .order-num{position:absolute;top:-75px;left:-31px;width:63px;text-align:center;font-size:10px;letter-spacing:.15em;color:#9fb3cd}
+.arc-item .node-label{left:68px;top:-28px;width:205px;text-align:left}
+.arc-item .node-label span{font-size:10px}
+.arc-item .node-label b{font-size:12px;font-weight:470;margin-top:4px;max-width:210px}
+.arc-item.selected .node-label b{font-size:14px;color:#fff}
+.time-wrap>.time-label{position:absolute;top:0;left:0;z-index:7;background:linear-gradient(#0a0e15d9,transparent);padding:18px 27px;width:100%}
+.arc-navigation{position:absolute;top:65px;right:clamp(17px,3.6vw,48px);z-index:8;width:235px;padding:10px 0;border:0;background:transparent}
+.arc-nav-row{display:flex;gap:7px;align-items:center}
+.arc-nav-row select{flex:1;min-width:0;color:#d9e7f6;background:#172233;border:1px solid #9db2cd54;border-radius:4px;font-size:11px;padding:8px 6px;outline:none;cursor:pointer}
+.arc-nav-btn{border:1px solid #839bb753;background:#152131;border-radius:4px;width:30px;height:35px;flex:0 0 30px;color:#c3d8f0}
+.arc-nav-btn:disabled{opacity:.25}
+.arc-navigation p{font-size:10px;color:#7990aa;margin-top:9px}
+.timeline-detail{position:absolute;bottom:25px;right:clamp(20px,4vw,54px);z-index:8;width:min(315px,47%);padding:17px 8px 13px 22px;border:0;border-left:1px solid #aac0db4e;background:linear-gradient(90deg,#0a0e15d3,transparent 96%);border-radius:0;box-shadow:none}
+.timeline-detail h3{font-size:16px;font-weight:460;line-height:1.5;margin:4px 0 15px;color:#e8effb}
+.timeline-detail-actions{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+.timeline-detail-primary{border:1px solid #a7c0df88;background:#283e56;color:#edf5ff;padding:8px 13px;border-radius:5px;font-size:11px}
+.timeline-detail-subtle{border:1px solid #7a92ae57;background:transparent;color:#aebed1;padding:8px 10px;border-radius:5px;font-size:10px}
+.time-wrap:after{content:"";pointer-events:none;position:sticky;bottom:0;height:45px;background:linear-gradient(transparent,#0c1018ae);margin-top:-45px;display:none}
+.arc-item{position:absolute;width:1px;height:1px;z-index:3;will-change:left,top,opacity;transform-origin:0 0;transition:left .32s ease,top .32s ease,opacity .32s ease,transform .34s cubic-bezier(.2,.7,.2,1)}
+.arc-item:not(.selected) .timeline-bubble{box-shadow:0 0 0 4px #b5cfed07,0 0 18px #95b8db15}
+.arc-item.selected{z-index:6}
+.arc-item:not(.selected){z-index:3}
+.timeline-bubble:focus-visible{outline:2px solid #fff;outline-offset:5px}
+.timeline-detail .timeline-detail-primary{white-space:nowrap}
+.photo-frame{position:fixed;inset:0;z-index:220;display:none;align-items:center;justify-content:center;background:#020407f5;backdrop-filter:blur(22px);padding:72px 68px 65px}
+.photo-frame.open{display:flex}
+.photo-frame img{max-width:100%;max-height:100%;object-fit:contain;border-radius:3px;box-shadow:0 20px 70px #000d;transition:transform .25s;cursor:zoom-in;user-select:none}
+.photo-frame img.zoomed{transform:scale(1.6);cursor:zoom-out}
+.photo-viewer-top{position:absolute;top:24px;left:32px;right:32px;display:flex;gap:20px;align-items:center;justify-content:space-between;color:#c7d6e9;font-size:11px}
+.photo-viewer-top button, .photo-frame .photo-arrow{border:1px solid #7f97b653;background:#18263998;color:#e5f0ff;border-radius:6px;padding:8px 12px}
+.photo-frame .photo-arrow{position:absolute;top:50%;transform:translateY(-50%);font-size:20px;width:37px;height:47px;padding:0}
+.photo-frame .photo-arrow.prev{left:19px}
+.photo-frame .photo-arrow.next{right:19px}
+.gallery-photo.has-photo{cursor:zoom-in}
+.gallery-photo.has-photo:hover{outline:1px solid #b9d7fb9c;outline-offset:2px}
+.gallery-photo.has-photo:focus-visible{outline:2px solid #cadbf4;outline-offset:3px}
+.universe-find{position:absolute;right:38px;top:28px;z-index:9;pointer-events:auto;display:flex;align-items:center;gap:9px;color:#92a6bc;font-size:10px;letter-spacing:.07em}
+.universe-find select{max-width:205px;width:195px;background:#111d2bcc;border:1px solid #8aa3c04d;color:#d8e8fa;border-radius:6px;padding:7px 10px;font:11px "Microsoft YaHei",system-ui,sans-serif;outline:none}
+#admin-workbench[hidden]{display:none!important}
+#admin-workbench{position:fixed;inset:67px 0 0;background:#090d14;z-index:109;overflow:auto;padding:32px clamp(18px,5vw,78px) 80px;font-size:12px}
+.admin-wrap{max-width:1260px;margin:0 auto}
+.admin-head{display:flex;align-items:start;justify-content:space-between;gap:20px;padding-bottom:23px;border-bottom:1px solid #7e95b533}
+.admin-head h1{font-size:clamp(25px,3.5vw,39px);font-weight:400;letter-spacing:.01em;margin:9px 0}
+.admin-head p{color:#92a6ba;max-width:690px;line-height:1.9}
+.admin-kicker{font-size:10px;letter-spacing:.21em;color:#91adc9}
+.admin-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.admin-btn{border:1px solid #7b9fbd6a;background:#162435;border-radius:6px;padding:9px 13px;color:#dae9f7;font-size:11px}
+.admin-btn:hover{border-color:#bfd2e5;background:#253b51}
+.admin-btn.alt{background:transparent;color:#a5b8cc}
+.admin-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:25px 0}
+.admin-stat{border:1px solid #8297b43c;background:linear-gradient(135deg,#141d2b,#10151d);border-radius:9px;padding:17px}
+.admin-stat small{font-size:10px;letter-spacing:.08em;color:#8b9fb5}
+.admin-stat b{font-size:27px;display:block;font-weight:380;margin-top:8px;color:#e7edf5}
+.admin-grid{display:grid;grid-template-columns:minmax(290px,.9fr) minmax(400px,1.4fr);gap:18px}
+.admin-card{border:1px solid #8fa5bb40;background:#0e151f;border-radius:11px;padding:22px;min-width:0}
+.admin-card h2{font-size:17px;font-weight:460;margin-bottom:5px}
+.admin-desc{font-size:11px;color:#8699af;line-height:1.85;margin-bottom:19px}
+.admin-form{display:grid;gap:12px}
+.admin-field{display:flex;flex-direction:column;gap:6px;font-size:11px;color:#9aafc5}
+.admin-field input, .admin-field select, .admin-field textarea, .admin-add-gear input{background:#0a111b;border:1px solid #8197b04f;border-radius:6px;color:#eaf0f8;padding:10px 11px;min-width:0;width:100%;font:inherit}
+.admin-field textarea{min-height:60px;resize:vertical}
+.admin-form-cols{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.admin-divider{height:1px;background:#8099b62b;margin:12px 0}
+.admin-checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.admin-check{display:flex;align-items:center;gap:8px;background:#141e2b;padding:9px 11px;border-radius:6px;color:#c7d4e4;font-size:11px}
+.admin-check input{accent-color:#a9c5e8}
+.admin-check span.done{text-decoration:line-through;color:#8394a9}
+.admin-add-gear{display:flex;gap:7px;margin-top:9px}
+.admin-add-gear .admin-btn{white-space:nowrap}
+.admin-form-actions{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:10px}
+.admin-empty{border:1px dashed #6682a057;border-radius:9px;padding:19px;color:#8396aa;line-height:1.8}
+.admin-records{display:grid;gap:9px;max-height:440px;overflow-y:auto}
+.admin-lens-list{display:grid;gap:8px}
+.admin-lens-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid #7a95ae26;padding:8px 0}
+.admin-lens-row small{color:#8ca0b7}
+.admin-notice{margin-top:22px;font-size:11px;color:#7d90a7;line-height:1.8}
+#access-gate[hidden]{display:none!important}
+body.owner-locked #add-role, body.owner-locked #edit-role, body.owner-locked #add-look, body.owner-locked #timeline-edit, body.owner-locked #list-add-role, body.owner-locked .quick-wish, body.owner-locked #wish-export, body.owner-locked .wish-edit{display:none!important}
+#owner-lock[hidden]{display:none!important}
+.vault-gate{max-width:410px}
+.vault-gate .gate-note{font-size:11px;color:#93a9be;line-height:1.7;min-height:16px;margin:0}
+.admin-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:12px}
+.admin-look-tile{padding:0;border:1px solid #728aa54d;border-radius:9px;background:#121c2a;overflow:hidden;text-align:left;color:#d8e6f6;cursor:pointer}
+.admin-look-tile.selected{border-color:#abc9ec;box-shadow:0 0 0 1px #abc9ec45}
+.admin-tile-image{height:153px;position:relative;background:linear-gradient(140deg,#223146,#101824);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.admin-tile-image img{width:100%;height:100%;object-fit:cover}
+.admin-tile-image span{position:absolute;bottom:8px;left:9px;font-size:8px;letter-spacing:.11em;color:#cbd9ec;background:#0b1420cc;border-radius:3px;padding:4px 6px}
+.admin-tile-content{padding:11px;display:grid;gap:4px}
+.admin-tile-content strong{font-size:12px;font-weight:500;line-height:1.5;overflow-wrap:anywhere}
+.admin-tile-content small{font-size:10px;color:#869bb3;line-height:1.5}
+.admin-tile-content .tile-status{font-size:10px;color:#b3c8df}
+.wish-share-readonly .wish-gear{gap:5px}
+.wish-share-readonly .gear-tag{padding:5px 7px;font-size:10px}
+.wish-share-readonly .wish-preview{pointer-events:none}
+.wish-share-readonly .wish-actions{display:none}
+.wish-share-readonly .wish-item{padding-bottom:14px}
+body.owner-locked .universe-filter>span, body.owner-locked [data-filter]{display:none!important}
+#open-admin.has-changes:after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#e6b980;margin-left:6px;vertical-align:2px}
+.admin-dirty{align-self:center;font-size:11px;color:#e6c48f}
+.path-hint{font-size:11px;line-height:1.7;color:#8ea2b8;background:#101a27;border:1px dashed #6f88a74d;border-radius:6px;padding:9px 11px;margin:0;overflow-wrap:anywhere}
+.path-hint code{color:#d6e5f6;font-family:inherit}
+.admin-heat{margin-bottom:18px}
+.heat-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.heat-wrap{overflow-x:auto;margin-top:12px;padding-bottom:4px}
+.heat-grid{display:grid;gap:3px;min-width:max-content;font-size:10px;color:#8ea2b8}
+.heat-grid .hc{height:26px;border-radius:4px;background:#141e2b;display:flex;align-items:center;justify-content:center;color:#0b111a;font-size:10px;min-width:26px}
+.heat-grid .hc[data-level="1"]{background:#2a4361}
+.heat-grid .hc[data-level="2"]{background:#4a6f96}
+.heat-grid .hc[data-level="3"]{background:#7fa3c9}
+.heat-grid .hc[data-level="4"]{background:#c4daf1}
+.heat-grid .hc[data-level="1"], .heat-grid .hc[data-level="2"]{color:#dce9f7}
+.heat-grid .hl{display:flex;align-items:center;justify-content:center;white-space:nowrap;letter-spacing:.04em}
+.heat-grid .hn{display:flex;align-items:center;padding-right:10px;color:#cbd8e6;font-size:11px;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis}
+.heat-grid .ht{display:flex;align-items:center;justify-content:flex-end;padding-left:6px;color:#9fb3c9}
+.heat-grid .hfoot{color:#8ea2b8}
+@media(max-width:1150px){
+ :root{--side:260px}
+ .bio{padding:28px 25px}
+ .workbody{grid-template-columns:minmax(360px,1fr) 293px}
+ .arc-canvas{width:min(100%,540px)}
+ .arc-item[data-place="1"]{left:62%}
+ .arc-item[data-place="3"]{left:62%}
+ .worktop{padding:14px 20px}
+ .work-controls{gap:8px}
+ .segment button{padding:7px 9px}
+ .node-label{width:155px;font-size:11px}
+}
+@media(max-width:1050px){
+ .topbar{padding:0 18px}
+ .brand small, .status{display:none}
+ .navbtn{padding:7px 9px}
+}
+@media(max-width:940px){
+ .admin-grid{grid-template-columns:1fr}
+ .admin-stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:900px){
+ .topbar{padding:0 17px}
+ .brand small{display:none}
+ .navbtn{padding:7px 9px}
+ .workbody{grid-template-columns:1fr}
+ .time-wrap{min-height:420px;max-height:46vh}
+ .arc-canvas{height:870px}
+ .arc-item[data-place="0"]{top:11%}
+ .arc-item[data-place="1"]{top:32%}
+ .arc-item[data-place="2"]{top:55%}
+ .arc-item[data-place="3"]{top:78%}
+ .worktop{height:auto;flex-direction:column;padding:14px 19px;min-height:0;align-items:flex-start}
+ .cards-gridview{padding:23px 20px 50px}
+ .cards-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:19px}
+ .node-label{left:62px;width:145px}
+ .workbody:not(.cards-mode) .time-wrap{height:100%;max-height:none;min-height:0}
+ .timeline-bubble{width:88px;height:88px}
+ .arc-item .node-label{left:60px}
+}
+@media(max-width:850px){
+ .universe-find{right:16px;top:17px}
+ .universe-find label{display:none}
+ .universe-find select{width:149px;max-width:149px}
+}
+@media(max-width:620px){
+ :root{--side:0px}
+ .status{display:none}
+ .bio{display:none}
+ #character{top:58px}
+ .reset{display:none}
+ .workbody{grid-template-columns:1fr}
+ .arc-item[data-place="0"]{left:24%}
+ .arc-item[data-place="1"]{left:60%}
+ .arc-item[data-place="2"]{left:26%}
+ .arc-item[data-place="3"]{left:58%}
+ .universeIntro p{font-size:11px;max-width:230px}
+ .gallery-shell{padding:17px}
+ .gallery-grid{gap:8px}
+ .gallery-photo{min-height:110px}
+ .gallery-photo span{font-size:8px}
+ .gallery-head h2{font-size:17px}
+ .worktop h2{font-size:16px}
+ .work-controls{justify-content:space-between;display:grid;grid-template-columns:1fr 1fr;width:100%;gap:9px}
+ .control-stack:first-child{grid-column:1/-1}
+ .control-stack .segment{display:flex}
+ .segment button{flex:1;padding:7px 5px;font-size:10px}
+ .worktop{padding:12px 14px 14px;gap:11px;min-height:0}
+ .time-wrap{max-height:none;min-height:55vh;height:55vh}
+ .arc-canvas{width:100%;height:900px}
+ .node-label{left:51px;width:113px}
+ .node-label b{font-size:11px}
+ .node-label span{font-size:9px}
+ .cards-heading{display:block}
+ .cards-heading small{display:block;margin-top:5px}
+ .cards-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+ .gallery-look{padding:6px}
+ .grid-caption{padding:10px 3px 0}
+ .grid-name{font-size:11px}
+ .cards-gridview{padding:17px 11px 45px}
+ .wish-gear{gap:4px;margin-top:8px;min-height:70px}
+ .gear-tag select{padding:4px 6px 4px 2px;font-size:9px}
+ .gear-tag .gear-dot{margin-left:5px}
+ .topbar{height:58px;padding:0 9px}
+ .brand{gap:5px;font-size:10px;letter-spacing:.08em}
+ .brand .mark{width:21px;height:21px}
+ .nav{gap:1px}
+ .navbtn{font-size:9px;padding:7px 5px}
+ #sky, #universe{height:calc(100vh - 58px);top:58px}
+ #character, .list-page{top:58px}
+ #sky{height:calc(100vh - 58px)}
+ .universeIntro{top:10%;left:6%}
+ .universeIntro h1{font-size:34px}
+ .universeBottom{right:20px;bottom:12px}
+ .universeSearch{display:none;bottom:15px;left:6%;font-size:8px}
+ .list-page{padding:24px 17px 60px}
+ .list-hero .eyebrow{margin-top:36px}
+ .wish-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .wish-item{padding:7px}
+ .list-toolbar .primary-pill{margin-top:10px}
+ .form-two{grid-template-columns:1fr}
+ .quick-wish{display:flex;gap:5px}
+ .quick-wish input{min-width:0;flex:1;padding:11px 8px;font-size:11px}
+ .quick-wish button{white-space:nowrap;padding:10px 9px;font-size:10px}
+ .list-toolbar{display:flex;align-items:center;gap:6px}
+ .list-toolbar input{min-width:0;flex:1}
+ .list-toolbar .subtle-pill{margin-top:0;padding:8px;font-size:10px}
+ .workbody:not(.cards-mode) .time-wrap{height:100%;max-height:none;min-height:0}
+ .time-wrap>.time-label{font-size:8px;padding:12px 13px}
+ .timeline-bubble{width:72px;height:72px}
+ .arc-item .node-label{left:48px;width:115px;top:-22px}
+ .arc-item .node-label span{font-size:9px}
+ .arc-item .node-label b{font-size:11px;line-height:1.4}
+ .arc-item.selected .node-label b{font-size:12px}
+ .arc-item .order-num{top:-57px;font-size:9px}
+ .arc-navigation{top:48px;right:10px;width:178px;padding:9px 0}
+ .arc-nav-row{gap:4px}
+ .arc-nav-row select{font-size:10px;padding:6px 4px}
+ .arc-nav-btn{width:24px;flex-basis:24px;height:30px}
+ .arc-navigation p{font-size:8px;margin-top:5px}
+ .timeline-detail{bottom:7px;right:9px;width:min(270px,70%);padding:9px 4px 11px 12px}
+ .timeline-detail h3{font-size:13px;margin:2px 0 7px}
+ .timeline-detail-actions{gap:5px}
+ .timeline-detail-actions button{padding:6px 8px;font-size:9px}
+ .photo-frame{padding:66px 15px 70px}
+ .photo-viewer-top{top:18px;left:12px;right:12px}
+ .photo-frame .photo-arrow{top:auto;bottom:17px;transform:none;width:42px;height:38px}
+ .photo-frame .photo-arrow.prev{left:calc(50% - 62px)}
+ .photo-frame .photo-arrow.next{right:calc(50% - 62px)}
+ .universe-filter{left:6%;bottom:65px;gap:1px}
+ .universe-filter button{padding:7px 6px}
+ .universe-find{top:12px;right:10px}
+ .universe-find select{width:125px;max-width:125px;font-size:10px;padding:6px 7px}
+ #admin-workbench{inset:58px 0 0;padding:19px 13px 55px}
+ .admin-head{display:block}
+ .admin-head .admin-btn{margin-top:13px}
+ .admin-card{padding:15px}
+ .admin-stats{gap:7px}
+ .admin-stat{padding:13px}
+ .admin-stat b{font-size:22px}
+ .admin-form-cols{grid-template-columns:1fr}
+ .admin-checklist{grid-template-columns:1fr}
+ .admin-bar{gap:6px}
+ .admin-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .admin-tile-image{height:155px}
+}
+@media(prefers-reduced-motion:reduce){
+ .card3d-inner, .arc-item{transition:none!important}
+ .arc-item{transition:none!important}
+ .arc-item, .photo-frame img{transition:none!important}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="mark">✧</span><span>COS / ATLAS</span><small>PERSONAL CHARACTER UNIVERSE</small></div>
+  <div class="nav"><button class="navbtn active" id="go-universe">宇宙总览</button><button class="navbtn" id="go-character">角色档案</button><button class="navbtn" id="go-wishlist">🔒 想出清单</button><button class="navbtn add-nav" id="add-role">＋ 添加角色</button><button class="navbtn add-nav" id="open-admin">⚙ 管理台</button><button class="navbtn" id="owner-lock" hidden>锁定</button></div>
+</header>
+<canvas id="sky" aria-label="可旋转的三维角色粒子星图"></canvas>
+<section id="universe" class="active" aria-label="3D 角色宇宙">
+  <div class="universeIntro"><div class="eyebrow">01 / THE UNIVERSE</div><h1>每一个角色，<br><span>一片宇宙。</span></h1><button class="universeCTA" id="open-first">探索角色 ↗</button></div>
+  <div class="universe-filter" aria-label="宇宙角色筛选"><span>查看</span><button data-filter="all" class="active">全部</button><button data-filter="done">已出</button><button data-filter="wish">想出</button><button id="jump-wishlist">清单 ↗</button></div><div class="universe-find"><label for="universe-find-select">定位角色</label><select id="universe-find-select" aria-label="快速查找角色"><option value="">搜索 / 跳转角色…</option></select></div><div class="universeSearch">拖动旋转　·　滚轮缩放　·　点击进入</div>
+  <div class="universeBottom"><small><span id="role-total">8</span> CHARACTERS</small></div>
+</section>
+<section id="character" aria-label="角色时间弧页面">
+ <aside class="bio">
+   <button class="back" id="back-universe">← 返回角色宇宙</button><div class="bio-index">CHARACTER / <span id="role-index">01</span></div>
+   <div class="portrait-ring"><i class="orbit"></i></div><h1 id="role-name">Harley Quinn</h1><p class="source" id="role-source">DC / 多种改编</p><p class="intro" id="role-desc"></p><div class="rule"></div>
+   <div class="sectionhead">LOOKS / 造型记录</div><div class="large-number"><span id="looks-count">04</span><small>个版本</small></div>
+   <div class="role-editactions"><button id="edit-role">✎ 编辑角色</button><button id="add-look">＋ 添加造型 / 想出版本</button></div><div class="sectionhead" style="margin-top:27px">OTHER CHARACTERS / 切换角色</div><div class="bio-roles" id="role-pills"></div>
+ </aside>
+ <main class="workspace">
+  <div class="worktop"><div><div class="eyebrow">02 / CHARACTER ARCHIVE</div><h2 id="workspace-title">时间在圆弧上缓缓流动。</h2></div>
+   <div class="work-controls">
+    <div class="control-stack"><label>浏览方式</label><div class="segment" id="layout-controls"><button data-layout="timeline" class="active">时间线</button><button data-layout="cards">全卡牌</button></div></div>
+    <div class="control-stack"><label>排列顺序</label><div class="segment" id="sort-controls"><button data-sort="source" class="active">作品时间</button><button data-sort="cos">COS 时间</button></div></div>
+    <div class="control-stack"><label>图片显示</label><div class="segment" id="face-controls"><button data-face="original">原角色</button><button data-face="cos" class="active">我的 COS</button></div></div>
+   </div>
+  </div>
+  <div class="workbody" id="workbody">
+   <div class="time-wrap" id="time-scroll" aria-label="沿着持续延伸的圆弧浏览角色版本">
+    <div class="time-label">ENDLESS ARC · <span id="sort-caption">按作品时间</span></div>
+    <div class="arc-stage" id="arc-canvas">
+      <svg class="arc-lines" id="arc-svg" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="infinity-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a4b7d5" stop-opacity="0"/><stop offset="17%" stop-color="#a4b7d5" stop-opacity=".5"/><stop offset="50%" stop-color="#d1dbeb" stop-opacity=".68"/><stop offset="83%" stop-color="#a4b7d5" stop-opacity=".5"/><stop offset="100%" stop-color="#a4b7d5" stop-opacity="0"/></linearGradient>
+        </defs>
+        <path id="arc-halo" fill="none" stroke="#94b6e8" stroke-width="19" opacity=".065" style="filter:blur(13px)"/>
+        <path id="main-arc" fill="none" stroke="url(#infinity-fade)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div class="arc-particles" aria-hidden="true"></div>
+      <div id="arc-items" aria-live="off"></div>
+      <div class="arc-topfade" aria-hidden="true"></div><div class="arc-bottomfade" aria-hidden="true"></div>
+    </div>
+    <div class="arc-navigation" aria-label="快速跳转时间点">
+      <div class="arc-nav-row">
+        <button id="timeline-prev" class="arc-nav-btn" aria-label="上一个造型">↑</button>
+        <select id="timeline-jump" aria-label="选择角色造型快速跳转"></select>
+        <button id="timeline-next" class="arc-nav-btn" aria-label="下一个造型">↓</button>
+      </div>
+    </div>
+    <div class="timeline-detail" aria-live="polite">
+      <div class="timeline-detail-actions"><button id="timeline-gallery" class="timeline-detail-primary">打开照片 ↗</button><button id="timeline-edit" class="timeline-detail-subtle">编辑</button></div>
+    </div>
+   </div>
+   <section class="cards-gridview" id="cards-view" aria-label="全部版本卡牌">
+     <div class="cards-heading"><span>ALL LOOKS / <span id="cards-order-caption">按作品时间排列</span></span><small>点卡牌翻面</small></div>
+     <div class="cards-grid" id="cards-grid"></div>
+   </section>
+  </div>
+ </main>
+</section>
+
+<section id="wishlist" aria-label="想出清单" class="list-page">
+ <div class="list-hero"><button class="back" id="list-back">← 返回宇宙</button><div class="eyebrow">WISHLIST / FUTURE CHARACTERS</div><h1>尚未成为的，<span>也是宇宙的一部分。</span></h1>
+ <div class="quick-wish"><input id="quick-wish-name" maxlength="90" placeholder="输入角色名，回车加入" aria-label="想出的角色名"><button id="quick-wish-add" class="primary-pill">＋ 加入</button></div><div class="list-toolbar"><input id="wish-search" placeholder="搜索清单" aria-label="搜索想出清单"><button id="list-add-role" class="subtle-pill">＋ 详细添加</button><button id="wish-export" class="subtle-pill">↓ 导出文本</button></div></div>
+ <button id="wish-lock" type="button" class="subtle-pill" hidden style="margin:0 0 22px">锁定清单</button><div id="wishlist-grid" class="wish-grid"></div>
+</section>
+<div id="access-gate" class="modal-overlay" role="dialog" aria-modal="true" aria-label="解锁私人页面" hidden>
+ <div class="modal-sheet small-sheet vault-gate">
+  <div class="modal-title"><div><small>PRIVATE / ACCESS</small><h2 id="gate-heading">输入暗号</h2></div><button class="icon-close" id="gate-close" type="button">✕</button></div>
+  <form id="gate-form" class="form-grid">
+   <label id="gate-label"><span id="gate-label-text">密码</span><input id="gate-password" type="password" required autocomplete="off" minlength="1"></label>
+   <p id="gate-note" class="gate-note" role="status"></p>
+   <button id="gate-submit" type="submit" class="primary-pill">解锁</button>
+  </form>
+ </div>
+</div>
+<div id="edit-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-label="编辑宇宙档案" hidden>
+ <div class="modal-sheet"><div class="modal-title"><div><small id="edit-kicker">CHARACTER / EDITOR</small><h2 id="edit-title">添加一颗星</h2></div><button type="button" id="close-editor" class="icon-close">✕</button></div>
+  <form id="role-form" class="form-grid" hidden>
+    <label>角色名称 *<input id="role-form-name" required maxlength="90" placeholder="例如：大道寺知世"></label>
+    <label>所属作品<input id="role-form-work" maxlength="60" list="work-options" placeholder="同一作品的角色会聚成一团"><datalist id="work-options"></datalist></label>
+    <label>备注（选填）<input id="role-form-source" maxlength="140" placeholder="版本、出处等"></label>
+    <fieldset><legend>当前状态</legend><label class="choice"><input type="radio" name="role-status" value="wish"> 想出 · 还没有 COS</label><label class="choice"><input type="radio" name="role-status" value="done"> 已出 · 已有造型</label></fieldset>
+    <label>简介（选填）<textarea id="role-form-desc" rows="3" maxlength="800"></textarea></label>
+    <label>原角色图片链接（选填）<input type="url" id="role-form-url" placeholder="https://"></label>
+        <div class="form-actions"><button type="button" id="delete-role" class="danger-button">删除角色</button><button type="submit" class="primary-pill">保存角色</button></div>
+  </form>
+  <form id="look-form" class="form-grid" hidden>
+    <label>造型 / 版本名称 *<input id="look-form-title" required maxlength="90" placeholder="例如：漫画版"></label>
+    <label>参考版本（选填）<input id="look-form-ref" maxlength="140" placeholder="电影 / 漫画 / 原创设计"></label>
+    <fieldset><legend>造型状态</legend><label class="choice"><input type="radio" name="look-status" value="wish"> 想出 · 计划中</label><label class="choice"><input type="radio" name="look-status" value="done"> 已出 · 完成 COS</label></fieldset>
+    <div class="form-two"><label>作品年份<input id="look-form-sourceyear" type="number" min="1000" max="2100" placeholder="例如 2018"></label><label>COS 年份<input id="look-form-cosyear" type="number" min="1990" max="2100" placeholder="例如 2026"></label></div>
+    <label>原角色图片链接（选填）<input type="url" id="look-form-url" placeholder="https://"></label>
+    <div class="form-two"><label>照片文件夹<input id="look-form-folder" maxlength="200" placeholder="例如 Harley Quinn/2024-07"></label><label>封面文件名（选填）<input id="look-form-cover" maxlength="120" placeholder="留空用第一张"></label></div>
+    <p class="path-hint" id="look-photo-path"></p>
+    <div class="form-actions"><button type="button" id="delete-look" class="danger-button">删除版本</button><button type="submit" class="primary-pill">保存版本</button></div>
+  </form>
+ </div>
+</div>
+<section id="admin-workbench" hidden aria-label="COS 管理工作台">
+ <div class="admin-wrap">
+  <div class="admin-head">
+   <div><div class="admin-kicker">PRIVATE STUDIO / PLANNING WORKSPACE</div><h1>管理台</h1>
+   </div><button class="admin-btn alt" id="admin-close">← 回到宇宙</button>
+  </div>
+  <div class="admin-bar"><button class="admin-btn" id="admin-export">↓ 导出 atlas.json</button><button class="admin-btn alt" id="admin-create">＋ 新建拍摄记录</button><button class="admin-btn alt" id="admin-add-character">＋ 添加角色</button><span class="admin-dirty" id="admin-dirty" role="status"></span></div>
+  <div class="admin-stats"><div class="admin-stat"><small>角色</small><b id="admin-count-roles">0</b></div><div class="admin-stat"><small>想出的造型</small><b id="admin-count-wishes">0</b></div><div class="admin-stat"><small>拍摄记录</small><b id="admin-count-sessions">0</b></div><div class="admin-stat"><small>用过的美瞳</small><b id="admin-count-lenses">0</b></div></div>
+  <div class="admin-card admin-heat"><div class="heat-head"><h2>出片热力图</h2><div class="segment" id="heat-mode"><button type="button" data-heat="year" class="active">按年份</button><button type="button" data-heat="month">按月份</button></div></div><p class="admin-desc" id="heat-desc"></p><div class="heat-wrap"><div class="heat-grid" id="heat-grid"></div></div></div>
+  <div class="admin-grid">
+   <div style="display:grid;gap:18px;align-content:start">
+    <div class="admin-card"><h2>造型一览</h2><p class="admin-desc">点立绘查看这套造型的记录。</p><div class="admin-tiles" id="admin-records"></div></div>
+    <div class="admin-card"><h2>美瞳使用统计</h2><div id="admin-lens-list" class="admin-lens-list"></div></div>
+   </div>
+   <div class="admin-card"><h2 id="admin-form-title">新建拍摄记录</h2>
+    <form id="admin-form" class="admin-form">
+     <div class="admin-form-cols"><label class="admin-field">角色<select id="admin-role" required></select></label><label class="admin-field">造型 / 版本<select id="admin-look" required></select></label></div>
+     <div class="admin-form-cols"><label class="admin-field">日期（拍摄或计划）<input id="admin-date" type="date"></label><label class="admin-field">记录状态<select id="admin-status"><option value="planned">准备中</option><option value="done">已拍摄</option></select></label></div>
+     <div class="admin-divider"></div><h2>美瞳记录</h2>
+     <div class="admin-form-cols"><label class="admin-field">品牌 / 系列 / 型号<input id="admin-lens-name" maxlength="120" placeholder="例如：某品牌 · 某系列"></label><label class="admin-field">颜色 / 花纹<input id="admin-lens-color" maxlength="100" placeholder="例如：灰蓝色"></label></div>
+     <label class="admin-field">美瞳备注（选填）<input id="admin-lens-notes" maxlength="200" placeholder="搭配感受、是否补货"></label>
+     <div class="admin-divider"></div><h2>装备检查</h2><p class="admin-desc" style="margin-bottom:3px">勾选表示已备齐。</p><div id="admin-gear-list" class="admin-checklist"></div>
+     <div class="admin-add-gear"><input id="admin-custom-gear" maxlength="70" placeholder="自定义装备"><button type="button" class="admin-btn" id="admin-gear-add">＋ 加一项</button></div>
+     <label class="admin-field">拍摄备注<textarea id="admin-session-notes" maxlength="900" placeholder="妆面、摄影师、下次改进"></textarea></label>
+     <div class="admin-form-actions"><button type="button" class="admin-btn alt" id="admin-delete">删除这条记录</button><button type="submit" class="admin-btn">保存后勤记录 ✓</button></div>
+    </form>
+   </div>
+  </div>
+  <p class="admin-notice">这里的修改只在当前页面。改完点「导出 atlas.json」，放进私有仓库的 data/ 并提交，网站会自动更新。</p>
+ </div>
+</section>
+<div id="gallery" role="dialog" aria-modal="true" aria-label="主题照片集"><div class="gallery-shell"><div class="gallery-head"><div><small>03 / PHOTO COLLECTION</small><h2 id="gallery-title">主题相册</h2></div><button class="gallery-close" id="close-gallery">关闭 ✕</button></div><div class="gallery-grid" id="gallery-grid"></div></div></div>
+<div id="photo-viewer" class="photo-frame" role="dialog" aria-modal="true" aria-label="照片放大查看">
+  <div class="photo-viewer-top"><span id="photo-viewer-title">PHOTO 01</span><button id="close-photo-viewer">关闭 ✕</button></div>
+  <button id="photo-prev" class="photo-arrow prev" aria-label="上一张">‹</button>
+  <img id="photo-viewer-image" alt="当前 COS 照片大图" title="点击放大或缩回">
+  <button id="photo-next" class="photo-arrow next" aria-label="下一张">›</button>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+(()=>{'use strict';
+let roles=[];
+let ownerUnlocked=false,dirty=false,publicRoles=null,sharedWishlist=null,gatePurpose='';
+const roleMap={};let role=null,selected=null,sort='source',globalFace='cos',layout='timeline',view='universe',filter='all',override=new Map();
+const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>('u'+Math.random().toString(36).slice(2,9)+Date.now().toString(36));
+const goodURL=s=>{try{let u=new URL(String(s||'').trim());return /^https?:$/.test(u.protocol)?u.href:''}catch{return ''}};
+const palette=[['#293b4c','#121923','#a3bfcc','#d6dfe4','#4e697b'],['#40364e','#141824','#b2a8ce','#dfc6e5','#695d88'],['#344a45','#111b1b','#a6d2c0','#d2ded7','#567e70'],['#55413e','#211822','#d7ac9c','#edcfc3','#9b6e5d']];
+function toast(s){let t=$('toast');t.textContent=s;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),3000)}
+function rebuildMap(){Object.keys(roleMap).forEach(k=>delete roleMap[k]);roles.forEach(r=>roleMap[r.id]=r);if(!role||!roleMap[role.id])role=roles[0]}
+function saveData(){if(!ownerUnlocked){toast('请先解锁');return false}dirty=true;updateDirty();return true}
+const WISH_GEAR=[['clothes','衣服'],['wig','假发'],['lens','美瞳'],['shoes','鞋子'],['props','道具']];
+const GEAR_STATES=['none','owned','rented','returned','sold'];
+const GEAR_LABELS={none:'',owned:'买的',rented:'租用中',returned:'已归还',sold:'已卖出'};
+function cleanLookGear(g){const out={};for(const [id] of WISH_GEAR)out[id]=GEAR_STATES.includes(g?.[id])?g[id]:'none';return out}
+const goodImage=s=>{s=String(s||'');return /^data:image\/(webp|png|jpeg);base64,[a-z0-9+/=]+$/i.test(s)||/^img\/[\w.-]+$/.test(s)?s:goodURL(s)};
+function cleanImages(x){if(!x||typeof x!=='object')return {};const out={};if(goodImage(x.cos))out.cos=goodImage(x.cos);if(goodImage(x.original))out.original=goodImage(x.original);const album=(Array.isArray(x.album)?x.album:[]).map(goodImage).filter(Boolean).slice(0,80);if(album.length)out.album=album;return out}
+const cleanFolder=s=>{const parts=String(s||'').replace(/\\/g,'/').split('/').map(x=>x.trim()).filter(Boolean);return parts.some(x=>x==='..'||x==='.')?'':parts.join('/').slice(0,200)};
+function normalizeRoles(input){if(!Array.isArray(input)||input.length>400)throw Error('角色数据不符合格式');const seen=new Set(),lseen=new Set();return input.map((item,i)=>{if(!item||typeof item!=='object')throw Error('角色数据有误');let id=String(item.id||uid()).slice(0,120);if(seen.has(id))throw Error('角色 ID 重复');seen.add(id);let looks=(Array.isArray(item.looks)?item.looks:[]).slice(0,100).map((look,j)=>{if(!look||typeof look!=='object')throw Error('版本数据有误');let lid=String(look.id||uid()).slice(0,120);if(lseen.has(lid))throw Error('版本 ID 重复');lseen.add(lid);return {id:lid,title:String(look.title||'未命名版本').slice(0,100),ref:String(look.ref||'').slice(0,180),sourceYear:Number.isInteger(Number(look.sourceYear))&&Number(look.sourceYear)>0?Number(look.sourceYear):null,cosYear:Number.isInteger(Number(look.cosYear))&&Number(look.cosYear)>0?Number(look.cosYear):null,status:look.status==='wish'?'wish':'done',demo:Boolean(look.demo),artURL:goodURL(look.artURL),folder:cleanFolder(look.folder),cover:String(look.cover||'').replace(/[\\/]/g,'').trim().slice(0,120),shotDate:/^\d{4}-\d\d-\d\d$/.test(look.shotDate||'')?look.shotDate:'',images:cleanImages(look.images),wishGear:cleanLookGear(look.wishGear),colors:Array.isArray(look.colors)&&look.colors.length===5&&look.colors.every(c=>/^#[a-f\d]{6}$/i.test(c))?look.colors:palette[i%palette.length]}});if(!looks.length)looks=[newLook(item.status==='wish'?'wish':'done','第一个造型',palette[i%4])];const legacySource=String(item.source||''),work=item.work!=null?String(item.work):legacySource.split(/\s*[·・]\s*/)[0];return {id,name:String(item.name||'未命名角色').slice(0,90),work:work.trim().slice(0,60),source:(item.work!=null?legacySource:legacySource.split(/\s*[·・]\s*/).slice(1).join(' · ')).slice(0,160),desc:String(item.desc||'').slice(0,800),status:item.status==='wish'?'wish':'done',artURL:goodURL(item.artURL),rgb:Array.isArray(item.rgb)&&item.rgb.length===3?item.rgb.map(n=>Math.max(0,Math.min(255,Number(n)||0))):[165,185,210],looks}})}
+rebuildMap();selected=null;
+function newLook(status,title,colors){return {id:uid(),title,ref:'',sourceYear:null,cosYear:null,status,demo:false,wishGear:cleanLookGear(null),colors:[...colors]}}
+function getLook(){return role?.looks.find(l=>l.id===selected)||role?.looks[0]}
+function actualSide(look){return look?.status==='wish'||role?.status==='wish'?'original':(override.get(look.id)||globalFace)}
+function allLooks(){const list=[...(role?.looks||[])];list.sort((a,b)=>{let av=sort==='source'?a.sourceYear:a.cosYear,bv=sort==='source'?b.sourceYear:b.cosYear;if(av==null&&bv==null)return role.looks.indexOf(a)-role.looks.indexOf(b);if(av==null)return 1;if(bv==null)return -1;return av-bv||role.looks.indexOf(a)-role.looks.indexOf(b)});return list}
+function styleFor(look,side){const colors=look.colors||palette[0];return `--tone-a:${colors[side==='cos'?0:1]};--tone-b:${colors[side==='cos'?1:0]};--halo:${colors[2]};--hair:${colors[3]};--hair2:${colors[3]};--outfit:${colors[4]}`}
+function faceHTML(look,side){const im=look.images||{},src=side==='cos'?(im.cos||''):(im.original||look.artURL||role.artURL||'');return `<div class="face ${side}" style="${styleFor(look,side)}"><div class="illustration"><div class="figure"><div class="body"></div><div class="hair"></div><div class="head"></div></div></div>${src?`<img class="art-image" loading="lazy" src="${esc(src)}" alt="${side==='cos'?'COS':'原角色'} 图片" onerror="this.style.display='none'">`:''}<div class="card-stroke"></div><span class="type">${side==='cos'?'COS / STUDY':'REFERENCE / STUDY'}</span><span class="bottomtext">${src?(side==='cos'?'COS 作品':'原角色参考'):(side==='cos'?'COS · 图片待上传':'原角色 · 图片待添加')}</span></div>`}
+function cardHTML(look){const wish=look.status==='wish'||role.status==='wish';return `<div class="card3d${actualSide(look)==='cos'?' is-cos':''}${wish?' wishlist-face-only':''}"><div class="card3d-inner">${faceHTML(look,'original')}${faceHTML(look,'cos')}</div></div>`}
+function visibleRoles(){return roles.filter(r=>filter==='all'||(filter==='wish'?(r.status==='wish'||r.looks.some(l=>l.status==='wish')):r.status==='done'))}
+function setScreen(next){if(next==='wishlist'&&!ownerUnlocked&&!sharedWishlist){openAccessGate('wish');return}view=next;for(const id of ['universe','character','wishlist'])$(id).classList.toggle('active',next===id);$('go-universe').classList.toggle('active',next==='universe');$('go-character').classList.toggle('active',next==='character');$('go-wishlist').classList.toggle('active',next==='wishlist');$('sky').style.pointerEvents=next==='universe'?'auto':'none';if(next==='wishlist'){$('wish-lock').hidden=ownerUnlocked;renderWishlist();}if(next==='universe')updateUniverseUI()}
+function updateUniverseUI(){document.querySelectorAll('[data-filter]').forEach(b=>{b.classList.toggle('active',b.dataset.filter===filter);b.setAttribute('aria-pressed',String(b.dataset.filter===filter))});$('role-total').textContent=String(visibleRoles().length);$('open-first').textContent=roles[0]?`探索 ${roles[0].name} ↗`:'';$('open-first').hidden=!roles.length}
+function openRole(id,lookId){role=roleMap[id]||roles[0];if(!role)return;selected=lookId&&role.looks.some(l=>l.id===lookId)?lookId:role.looks[0].id;sort='source';globalFace=role.status==='wish'?'original':'cos';layout='timeline';override.clear();$('role-name').textContent=role.name;$('role-source').textContent=roleSubtitle(role)||'作品待补';$('role-desc').textContent=role.desc||'';$('role-index').textContent=String(roles.indexOf(role)+1).padStart(2,'0');$('looks-count').textContent=String(role.looks.length).padStart(2,'0');$('workspace-title').textContent=role.status==='wish'?'还没实现的造型，也值得收藏。':'时间在圆弧上缓缓流动。';refreshPills();setScreen('character');updateControls();renderArc();$('time-scroll').scrollTop=0}
+function refreshPills(){$('role-pills').replaceChildren();roles.forEach(r=>{const b=document.createElement('button');b.className='bio-pill'+(r.id===role.id?' active':'');b.textContent=r.name+(r.status==='wish'?' · 想出':'');b.onclick=()=>openRole(r.id);$('role-pills').append(b)})}
+function updateControls(){document.querySelectorAll('[data-layout]').forEach(b=>{b.classList.toggle('active',b.dataset.layout===layout);b.setAttribute('aria-pressed',String(b.dataset.layout===layout))});document.querySelectorAll('[data-sort]').forEach(b=>{b.classList.toggle('active',b.dataset.sort===sort);b.setAttribute('aria-pressed',String(b.dataset.sort===sort))});document.querySelectorAll('[data-face]').forEach(b=>{b.classList.toggle('active',b.dataset.face===globalFace);b.setAttribute('aria-pressed',String(b.dataset.face===globalFace))});$('workbody').classList.toggle('cards-mode',layout==='cards');$('sort-caption').textContent=sort==='source'?'按作品时间':'按 COS 时间';$('cards-order-caption').textContent=sort==='source'?'按作品时间':'按 COS 时间'}
+function yearText(look){const year=sort==='source'?look.sourceYear:look.cosYear;return year==null?'时间待补':String(year)+(sort==='cos'&&look.demo?' · 示例':'')}
+function roleSubtitle(r){return [r.work,r.source].filter(Boolean).join(' · ')}
+let timelinePosition=0,timelineGap=160,timelineGeometry=null,timelineTouchStart=null,timelineDrag=false,timelineResizePending=0;
+function timelineCircleX(y,w,h){const bulge=Math.max(36,Math.min(175,w*.20)),d=h/2+160,R=(d*d+bulge*bulge)/(2*bulge),delta=y-h/2;return w*.42-R+Math.sqrt(Math.max(0,R*R-delta*delta))}
+function updateTimelineLayout(){
+ if(view!=='character'||!role)return;
+ const stage=$('arc-canvas'),w=stage.clientWidth,h=stage.clientHeight;
+ if(w<1||h<1)return;
+ const svg=$('arc-svg');svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+ const points=[];for(let y=-130;y<=h+140;y+=8)points.push(`${points.length?'L':'M'} ${timelineCircleX(y,w,h).toFixed(2)} ${y}`);
+ const d=points.join(' ');$('main-arc').setAttribute('d',d);$('arc-halo').setAttribute('d',d);
+ timelineGap=Math.max(138,Math.min(205,h*.29));
+ const looks=allLooks();
+ document.querySelectorAll('#arc-items .arc-item').forEach(e=>{
+  const index=Number(e.dataset.index),y=h*.45+(index-timelinePosition)*timelineGap;
+  const steps=Math.abs(index-timelinePosition);
+  // The selected bubble is full size; neighbours shrink and fade with distance.
+  const focusScale=Math.max(.45,1/(1+steps*.30));
+  e.style.left=timelineCircleX(y,w,h)+'px';e.style.top=y+'px';
+  e.style.transform=`scale(${focusScale.toFixed(3)})`;
+  const edge=Math.min(y,h-y),edgeFade=Math.max(0,Math.min(1,(edge-12)/82));
+  const depthFade=Math.max(.48,1-steps*.18);
+  const opacity=edgeFade*depthFade;
+  e.style.opacity=String(opacity);e.style.pointerEvents=opacity<.14?'none':'auto';
+  e.classList.toggle('selected',index===Math.round(timelinePosition));
+ });
+ const at=Math.round(timelinePosition);
+ $('timeline-prev').disabled=at===0;$('timeline-next').disabled=at>=looks.length-1;
+ if(looks[at]&&selected!==looks[at].id){selected=looks[at].id;renderPreview();}
+ $('timeline-jump').value=String(at);
+}
+function scrollTimelineBy(delta){const n=allLooks().length;if(n<2)return;timelinePosition=Math.max(0,Math.min(n-1,timelinePosition+delta));updateTimelineLayout()}
+function goTimelineIndex(index){const n=allLooks().length;timelinePosition=Math.max(0,Math.min(n-1,index));selected=allLooks()[Math.round(timelinePosition)].id;renderPreview();updateTimelineLayout()}
+function updateTimelineDetail(){const look=getLook();if(look)$('timeline-gallery').textContent=look.status==='wish'?'编辑计划 ↗':'打开照片 ↗'}
+function renderArc(){if(!role)return;
+ const list=allLooks(),root=$('arc-items');root.replaceChildren();
+ const currentIndex=Math.max(0,list.findIndex(l=>l.id===selected));timelinePosition=currentIndex;
+ const jump=$('timeline-jump');jump.replaceChildren();list.forEach((look,i)=>{const opt=document.createElement('option');opt.value=String(i);opt.textContent=`${yearText(look)} · ${look.title}`;jump.append(opt)});
+ list.forEach((look,index)=>{const e=document.createElement('div');e.className='arc-item'+(look.id===selected?' selected':'');e.dataset.index=String(index);e.dataset.look=look.id;
+ e.innerHTML=`<div class="order-num">${String(index+1).padStart(2,'0')} / ${String(list.length).padStart(2,'0')}</div><button class="timeline-bubble ${look.status==='wish'?'planned':''}" aria-label="查看 ${esc(look.title)}">${cardHTML(look)}</button><div class="node-label"><span>${esc(yearText(look))}${look.status==='wish'?' · 想出':''}</span><b>${esc(look.title)}</b></div>`;
+ e.querySelector('button').onclick=()=>{
+   if(selected===look.id){
+     look.status==='wish'?showEditor('look',look.id):openGallery();
+   }else goTimelineIndex(index);
+  };
+  root.append(e)});
+ renderPreview();renderCards();requestAnimationFrame(updateTimelineLayout);
+}
+function renderCards(){const grid=$('cards-grid');grid.replaceChildren();allLooks().forEach(look=>{const item=document.createElement('article');item.className='gallery-look';item.dataset.look=look.id;item.innerHTML=`<button class="grid-card" aria-label="翻动 ${esc(look.title)} 卡牌">${cardHTML(look)}</button><div class="grid-caption"><div class="grid-year">${esc(yearText(look))}</div><div class="grid-name">${esc(look.title)}</div>${look.status==='wish'?'<div class="grid-planned">◇ 想出</div>':''}<button class="grid-open">${look.status==='wish'?'编辑计划 ↗':'查看主题照片 ↗'}</button></div>`;item.querySelector('.grid-card').onclick=()=>{selected=look.id;flipLook(look.id)};item.querySelector('.grid-open').onclick=()=>{selected=look.id;look.status==='wish'?showEditor('look',look.id):openGallery()};grid.append(item)})}
+function renderPreview(){updateTimelineDetail()}
+function flipLook(id){const look=role.looks.find(l=>l.id===id);if(!look)return;if(look.status==='wish'||role.status==='wish'){toast('想出的造型只有原角色面');return}override.set(id,actualSide(look)==='cos'?'original':'cos');document.querySelectorAll(`[data-look="${CSS.escape(id)}"] .card3d`).forEach(el=>el.classList.toggle('is-cos',actualSide(look)==='cos'));renderPreview()}
+function wishEntries(){let entries=[];roles.forEach(r=>{const plans=r.looks.filter(l=>l.status==='wish');if(r.status==='wish'&&!plans.length)entries.push({role:r,look:r.looks[0]});else for(const look of plans)entries.push({role:r,look})});return entries}
+function wishGearHtml(look){
+ const g=cleanLookGear(look.wishGear);
+ const active=WISH_GEAR.filter(([id])=>g[id]==='owned'||g[id]==='rented').length;
+ const pills=WISH_GEAR.map(([id,label])=>{
+  const state=g[id],options=GEAR_STATES.map(v=>`<option value="${v}"${v===state?' selected':''}>${esc(label)}${v==='none'?'':' · '+GEAR_LABELS[v]}</option>`).join('');
+  return `<span class="gear-tag" data-state="${state}"><i class="gear-dot" aria-hidden="true"></i><select data-gear="${id}" aria-label="${esc(label)}装备状态" title="${esc(label)}：${GEAR_LABELS[state]||'没有'}">${options}</select></span>`
+ }).join('');
+ return `<div class="wish-gear" aria-label="造型装备记录">${pills}</div><div class="wish-ready">${active} / 5 已有</div>`;
+}
+function renderWishlist(){if(!ownerUnlocked){renderSharedWishlist();return}const grid=$('wishlist-grid'),q=$('wish-search').value.trim().toLowerCase(),entries=wishEntries().filter(e=>[e.role.name,e.role.work,e.role.source,e.look.title].join(' ').toLowerCase().includes(q));grid.replaceChildren();if(!entries.length){grid.innerHTML=`<div class="wish-empty"><h3>${q?'没找到匹配的角色':'还没有加入想出的角色'}</h3><button class="primary-pill" id="empty-add">＋ 添加想出角色</button></div>`;$('empty-add').onclick=()=>showEditor('role',null,'wish');return}for(const {role:r,look:l} of entries){const prevRole=role;role=r;const html=cardHTML(l);role=prevRole;const item=document.createElement('div');item.className='wish-item';item.innerHTML=`<button class="wish-preview" aria-label="打开 ${esc(r.name)}">${html}</button><div class="wish-status">WISHLIST / PLAN</div><h3 class="wish-name">${esc(r.name)}</h3><div class="wish-source">${esc(roleSubtitle(r)||'作品待补')}</div><div class="wish-source">${esc(l.title)}</div>${wishGearHtml(l)}<div class="wish-actions"><button class="wish-open">进入角色</button><button class="wish-edit">编辑计划</button></div>`;item.querySelector('.wish-preview').onclick=item.querySelector('.wish-open').onclick=()=>openRole(r.id,l.id);item.querySelector('.wish-edit').onclick=()=>{role=r;selected=l.id;showEditor('look',l.id)};
+  item.querySelectorAll('[data-gear]').forEach(sel=>sel.onchange=()=>{
+   l.wishGear=cleanLookGear(l.wishGear);l.wishGear[sel.dataset.gear]=sel.value;
+   const pill=sel.closest('.gear-tag');pill.dataset.state=sel.value;
+   sel.title=`${WISH_GEAR.find(([id])=>id===sel.dataset.gear)?.[1]||''}：${GEAR_LABELS[sel.value]||'没有'}`;
+   const active=WISH_GEAR.filter(([id])=>['owned','rented'].includes(l.wishGear[id])).length;
+   item.querySelector('.wish-ready').textContent=`${active} / 5 已有`;
+   saveData();
+  });
+  grid.append(item)}}
+$('go-universe').onclick=()=>setScreen('universe');$('back-universe').onclick=()=>setScreen('universe');$('list-back').onclick=()=>setScreen('universe');$('go-character').onclick=()=>roles.length?openRole((role||roles[0]).id):(ownerUnlocked?showEditor('role',null,'done'):toast('还没有角色'));$('go-wishlist').onclick=()=>setScreen('wishlist');$('jump-wishlist').onclick=()=>setScreen('wishlist');$('open-first').onclick=()=>openRole(roles[0].id);
+document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;updateUniverseUI()});
+document.querySelectorAll('[data-layout]').forEach(b=>b.onclick=()=>{layout=b.dataset.layout;updateControls();renderArc();if(layout==='timeline')requestAnimationFrame(updateTimelineLayout)});
+document.querySelectorAll('[data-sort]').forEach(b=>b.onclick=()=>{sort=b.dataset.sort;updateControls();renderArc()});
+document.querySelectorAll('[data-face]').forEach(b=>b.onclick=()=>{globalFace=b.dataset.face;override.clear();updateControls();renderArc()});
+$('timeline-gallery').onclick=()=>getLook()?.status==='wish'?showEditor('look',selected):openGallery();
+$('timeline-edit').onclick=()=>showEditor('look',selected);
+$('timeline-prev').onclick=()=>goTimelineIndex(Math.round(timelinePosition)-1);
+$('timeline-next').onclick=()=>goTimelineIndex(Math.round(timelinePosition)+1);
+$('timeline-jump').onchange=e=>goTimelineIndex(Number(e.target.value));
+$('time-scroll').addEventListener('wheel',e=>{if(layout!=='timeline'||view!=='character')return;e.preventDefault();scrollTimelineBy(e.deltaY/270)},{passive:false});
+$('time-scroll').addEventListener('touchstart',e=>{if(layout!=='timeline'||!e.touches.length||e.target.closest('button,select'))return;timelineTouchStart={y:e.touches[0].clientY,pos:timelinePosition}},{passive:true});
+$('time-scroll').addEventListener('touchmove',e=>{if(!timelineTouchStart||layout!=='timeline')return;e.preventDefault();timelinePosition=Math.max(0,Math.min(allLooks().length-1,timelineTouchStart.pos+(timelineTouchStart.y-e.touches[0].clientY)/timelineGap));updateTimelineLayout()},{passive:false});
+$('time-scroll').addEventListener('touchend',()=>{if(timelineTouchStart){goTimelineIndex(Math.round(timelinePosition));timelineTouchStart=null}},{passive:true});
+window.addEventListener('resize',()=>{if(view==='character'&&layout==='timeline'){cancelAnimationFrame(timelineResizePending);timelineResizePending=requestAnimationFrame(updateTimelineLayout)}});
+$('wish-search').oninput=renderWishlist;
+$('wish-export').onclick=()=>{if(!ownerUnlocked)return;
+ const q=$('wish-search').value.trim().toLowerCase();const items=wishEntries().filter(e=>(e.role.name+' '+e.role.source+' '+e.look.title).toLowerCase().includes(q));
+ if(!items.length)return toast('没有可导出的造型');
+ const text='COS / WISHLIST\n\n'+items.map(({role:r,look:l})=>{
+  const gears=cleanLookGear(l.wishGear);
+  return `${r.name} · ${l.title}${r.source?' / '+r.source:''}\n`+
+   WISH_GEAR.map(([id,name])=>`${name}：${GEAR_LABELS[gears[id]]||'无'}`).join('　');
+ }).join('\n\n');
+ const a=document.createElement('a'),url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));
+ a.href=url;a.download='COS想出清单.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ toast('已导出');
+};
+function quickAddWish(){const name=$('quick-wish-name').value.trim();if(!name)return toast('先输入角色名');const existing=roles.find(r=>r.name.toLowerCase()===name.toLowerCase());if(existing){role=existing;selected=existing.looks[0].id;$('quick-wish-name').value='';toast('这个角色已存在，可以添加新造型');openRole(existing.id);showEditor('look',null);return}const index=roles.length,r={id:uid(),name,work:'',source:'',desc:'',status:'wish',artURL:'',rgb:[150+(index*37)%70,153+(index*31)%67,176+(index*23)%56],looks:[newLook('wish','想出的造型',palette[index%4])]};roles.push(r);rebuildMap();saveData();$('quick-wish-name').value='';renderWishlist();toast(name+' 已加入')}
+$('quick-wish-add').onclick=quickAddWish;$('quick-wish-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();quickAddWish()}});
+$('add-role').onclick=()=>showEditor('role',null,'wish');$('list-add-role').onclick=()=>showEditor('role',null,'wish');$('edit-role').onclick=()=>showEditor('role',role.id);$('add-look').onclick=()=>showEditor('look',null);
+let editType='',editId=null,pendingLookId=null;
+function showEditor(type,id,defaultStatus){if(!ownerUnlocked){openAccessGate('owner');return}editType=type;editId=id;const isRole=type==='role',r=isRole?roleMap[id]:role,l=!isRole&&id?r.looks.find(x=>x.id===id):null;
+ $('role-form').hidden=!isRole;$('look-form').hidden=isRole;$('edit-title').textContent=isRole?(id?'编辑角色':'添加一颗新星'):(id?'编辑造型':'添加造型');$('edit-kicker').textContent=isRole?'CHARACTER / EDITOR':'LOOK / EDITOR';$('delete-role').style.display=id&&isRole?'':'none';$('delete-look').style.display=id&&!isRole?'':'none';
+ if(isRole){$('role-form-name').value=id?r.name:'';$('role-form-work').value=id?r.work:'';$('role-form-source').value=id?r.source:'';const works=[...new Set(roles.map(x=>x.work).filter(Boolean))];$('work-options').replaceChildren(...works.map(w=>{const o=document.createElement('option');o.value=w;return o}));$('role-form-desc').value=id?r.desc:'';$('role-form-url').value=id?r.artURL||'':'';document.querySelector(`input[name="role-status"][value="${id?r.status:(defaultStatus||'wish')}"]`).checked=true}
+ else{pendingLookId=l?l.id:uid();$('look-form-title').value=l?l.title:'';$('look-form-ref').value=l?l.ref:'';$('look-form-sourceyear').value=l?.sourceYear||'';$('look-form-cosyear').value=l?.cosYear||'';$('look-form-url').value=l?.artURL||'';$('look-form-folder').value=l?.folder||'';$('look-form-cover').value=l?.cover||'';document.querySelector(`input[name="look-status"][value="${l?.status||'wish'}"]`).checked=true;
+  $('look-photo-path').innerHTML=`路径从私有仓库的 <code>photos/</code> 开始算，留空就用 <code>photos/${esc(pendingLookId)}/</code>。<br>文件名随意：叫 original 的是原角色面，其余按拍摄时间排进相册。`}
+ $('edit-overlay').hidden=false;setTimeout(()=>$(isRole?'role-form-name':'look-form-title').focus(),50)}
+$('close-editor').onclick=()=>{$('edit-overlay').hidden=true};$('edit-overlay').addEventListener('click',e=>{if(e.target===$('edit-overlay'))$('edit-overlay').hidden=true});
+function activeRadio(name){return document.querySelector(`input[name="${name}"]:checked`)?.value||'wish'}
+$('role-form').onsubmit=e=>{e.preventDefault();try{const name=$('role-form-name').value.trim();if(!name)throw Error('请填写角色名');if(!editId&&roles.some(r=>r.name.toLowerCase()===name.toLowerCase()))throw Error('这个角色已存在');const st=activeRadio('role-status');let r=editId?roleMap[editId]:null;
+ if(!r){const index=roles.length,rgb=[145+(index*41)%67,157+(index*23)%60,172+(index*17)%58];r={id:uid(),name,work:'',source:'',desc:'',status:st,artURL:'',rgb,looks:[newLook(st,st==='wish'?'想出的造型':'第一套造型',palette[index%4])]};roles.push(r)}
+ r.name=name;r.work=$('role-form-work').value.trim();r.source=$('role-form-source').value.trim();r.desc=$('role-form-desc').value.trim();r.artURL=goodURL($('role-form-url').value);r.status=st;if(st==='wish')r.looks.forEach(l=>{if(l.status==='done'&&!l.cosYear)l.status='wish'});if(st==='done'&&r.looks.every(l=>l.status==='wish'))r.looks[0].status='done';
+ rebuildMap();saveData();$('edit-overlay').hidden=true;toast('已保存');r.status==='wish'?setScreen('wishlist'):openRole(r.id)}catch(err){toast(err.message||'保存失败')}};
+$('look-form').onsubmit=e=>{e.preventDefault();try{let title=$('look-form-title').value.trim();if(!title)throw Error('请填写造型名称');let l=editId?role.looks.find(x=>x.id===editId):null;if(!l){l=newLook('wish',title,palette[role.looks.length%4]);l.id=pendingLookId||l.id;role.looks.push(l)}
+ l.title=title;l.ref=$('look-form-ref').value.trim();l.sourceYear=Number($('look-form-sourceyear').value)||null;l.cosYear=Number($('look-form-cosyear').value)||null;l.status=activeRadio('look-status');l.demo=false;l.artURL=goodURL($('look-form-url').value);l.folder=cleanFolder($('look-form-folder').value);l.cover=$('look-form-cover').value.replace(/[\\/]/g,'').trim();if(l.status==='done')role.status='done';
+ selected=l.id;saveData();$('edit-overlay').hidden=true;refreshPills();$('looks-count').textContent=String(role.looks.length).padStart(2,'0');updateControls();renderArc();toast('已保存');if(view==='wishlist')renderWishlist()}catch(err){toast(err.message||'保存失败')}};
+$('delete-role').onclick=()=>{if(!roleMap[editId]||!confirm('删除这个角色和它的所有造型？'))return;roles.splice(roles.findIndex(r=>r.id===editId),1);role=roles[0];rebuildMap();selected=role?.looks[0]?.id||null;saveData();$('edit-overlay').hidden=true;setScreen('universe')};
+$('delete-look').onclick=()=>{if(!editId||!confirm('删除这个造型？'))return;if(role.looks.length<=1){toast('至少保留一个造型');return}role.looks=role.looks.filter(l=>l.id!==editId);selected=role.looks[0].id;saveData();$('edit-overlay').hidden=true;openRole(role.id);toast('已删除')};
+const albumOf=look=>look?.images?.album||[];
+function openGallery(){const look=getLook();$('gallery-title').textContent=role.name+' / '+look.title;const imgs=albumOf(look),grid=$('gallery-grid');grid.replaceChildren();for(let i=0;i<Math.max(3,imgs.length);i++){const p=document.createElement('div');p.className='gallery-photo';p.style.setProperty('--g1',look.colors[i%2]);p.style.setProperty('--g2',look.colors[(i+1)%look.colors.length]);if(imgs[i]){const im=document.createElement('img');im.src=imgs[i];im.alt='COS 作品照片 '+(i+1);im.loading='lazy';p.append(im);p.classList.add('has-photo');p.tabIndex=0;p.setAttribute('role','button');p.setAttribute('aria-label','放大第 '+(i+1)+' 张照片');p.onclick=()=>openPhotoViewer(i);p.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPhotoViewer(i)}}}const label=document.createElement('span');label.textContent='PHOTO '+String(i+1).padStart(2,'0')+(imgs[i]?'':' · 待添加');p.append(label);grid.append(p)}$('gallery').classList.add('open')}
+let viewingPhoto=0;
+function updatePhotoViewer(){const images=albumOf(getLook());if(!images.length)return;viewingPhoto=(viewingPhoto+images.length)%images.length;const im=$('photo-viewer-image');im.classList.remove('zoomed');im.src=images[viewingPhoto];$('photo-viewer-title').textContent=`${role.name} / ${getLook().title} · ${viewingPhoto+1} / ${images.length}`;$('photo-prev').disabled=images.length<2;$('photo-next').disabled=images.length<2}
+function openPhotoViewer(index){viewingPhoto=index;updatePhotoViewer();$('photo-viewer').classList.add('open')}
+function closePhotoViewer(){$('photo-viewer').classList.remove('open');$('photo-viewer-image').classList.remove('zoomed')}
+$('close-photo-viewer').onclick=closePhotoViewer;
+$('photo-viewer').addEventListener('pointerdown',e=>{if(e.target===$('photo-viewer'))closePhotoViewer()});
+$('photo-viewer-image').onclick=e=>e.currentTarget.classList.toggle('zoomed');
+$('photo-prev').onclick=()=>{viewingPhoto--;updatePhotoViewer()};$('photo-next').onclick=()=>{viewingPhoto++;updatePhotoViewer()};
+$('close-gallery').onclick=()=>$('gallery').classList.remove('open');$('gallery').addEventListener('pointerdown',e=>{if(e.target===$('gallery'))$('gallery').classList.remove('open')});
+// Saving a published photo is not blocked by code (it cannot be); right-click / drag saving is only discouraged.
+document.addEventListener('contextmenu',e=>{if(e.target.closest('img'))e.preventDefault()});document.addEventListener('dragstart',e=>{if(e.target.closest('img'))e.preventDefault()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('photo-viewer').classList.contains('open'))closePhotoViewer();else if(!$('access-gate').hidden)closeGate();else if(!$('edit-overlay').hidden)$('edit-overlay').hidden=true;else if($('gallery').classList.contains('open'))$('gallery').classList.remove('open');else if(view!=='universe')setScreen('universe')}if($('photo-viewer').classList.contains('open')){if(e.key==='ArrowLeft'){$('photo-prev').click()}else if(e.key==='ArrowRight'){$('photo-next').click()}}});
+// Star map: roles of the same work form one cluster; done roles sit on the inner ring, wish roles on the outer ring.
+const canvas=$('sky'),ctx=canvas.getContext('2d');
+let W=0,H=0,DPR=1,yaw=-.13,pitch=-.11,zoom=1,frameNo=0,drag=null,hot=null;
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let seed=1037;const rand=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296},between=(a,b)=>a+(b-a)*rand();
+const stardust=Array.from({length:410},()=>({x:between(-8,8),y:between(-5,5),z:between(-5,5),radius:between(.35,1.3),alpha:between(.08,.29)}));
+const clusterCache=new Map();
+function getCluster(r){
+ const count=Math.max(17,Math.min(200,80+r.looks.length*24,Math.floor(3000/Math.max(1,visibleRoles().length))));
+ if(!clusterCache.has(r.id)||clusterCache.get(r.id).length!==count){
+  let rr=stableHash(r.id),drawRand=()=>{rr=(1664525*rr+1013904223)>>>0;return rr/4294967296};
+  clusterCache.set(r.id,Array.from({length:count},()=>{const a=drawRand()*Math.PI*2,u=Math.pow(drawRand(),.48)*(.27+Math.min(10,r.looks.length)*.05);return {x:Math.cos(a)*u,y:Math.sin(a)*u*.79,z:(drawRand()-.5)*.58,r:.4+drawRand()*.7,alpha:.22+drawRand()*.46}}));
+ }return clusterCache.get(r.id)
+}
+function stableHash(v){let h=2166136261>>>0;for(const c of String(v)){h=Math.imul(h^c.charCodeAt(0),16777619)>>>0}return h||1}
+function unit(v){return stableHash(v)/4294967295}
+const workKey=r=>String(r.work||'').trim().toLowerCase().replace(/\s+/g,'')||'#'+r.id;
+let hits=[],layoutCache=new Map(),layoutLinks=[],clusterLabels=[],layoutSignature='',fitRatio=1;
+function layoutKey(){return roles.map(r=>`${r.id}:${workKey(r)}:${r.status}:${r.looks.length}`).join('|')}
+function ensureLayout(){const key=layoutKey();if(key===layoutSignature)return;layoutSignature=key;
+ layoutCache=new Map();layoutLinks=[];clusterLabels=[];
+ const groups=new Map();for(const r of roles){const k=workKey(r);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r)}
+ // 1. Arrange members around their cluster centre (local coordinates).
+ const clusters=[...groups].map(([k,members])=>{
+  const order=(a,b)=>unit(a.id)-unit(b.id),done=members.filter(r=>r.status==='done').sort(order),wish=members.filter(r=>r.status!=='done').sort(order);
+  const ring=n=>n<=1?0:Math.max(.85,.21*n),a0=unit(k+'a')*Math.PI*2,rIn=ring(done.length),rOut=done.length?rIn+(done.length>1?.95:1):ring(wish.length),local=new Map();
+  done.forEach((r,i)=>local.set(r.id,[Math.cos(a0+i*2*Math.PI/done.length)*rIn,Math.sin(a0+i*2*Math.PI/done.length)*rIn*.92,(unit(r.id+'z')-.5)*.3]));
+  wish.forEach((r,i)=>{const a=a0+Math.PI/Math.max(1,done.length)+i*2*Math.PI/wish.length,rad=done.length||wish.length>1?rOut:0;local.set(r.id,[Math.cos(a)*rad,Math.sin(a)*rad*.92,(unit(r.id+'z')-.5)*.3])});
+  const u=unit(k+'u')*Math.PI*2,v=unit(k+'v')*2-1,flat=Math.sqrt(1-v*v);
+  return {key:k,members,done,wish,local,radius:Math.max(rIn,rOut)+.55,home:[Math.cos(u)*flat,Math.sin(u)*flat*.78,v*.6]};
+ });
+ // 2. Cluster centres come from the work name, so they stay put when roles are added; then they are pushed apart.
+ const n=clusters.length,spread=1+.36*Math.sqrt(n);
+ const xs=clusters.map(c=>c.home.map(x=>x*spread));
+ for(let iter=0;iter<220;iter++){
+  const fx=Array(n).fill(0),fy=Array(n).fill(0);
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+   let dx=xs[i][0]-xs[j][0],dy=xs[i][1]-xs[j][1],len=Math.hypot(dx,dy);
+   if(len<.0001){dx=unit(clusters[i].key)-.5||.02;dy=unit(clusters[j].key)-.5||.03;len=Math.hypot(dx,dy)}
+   const need=clusters[i].radius+clusters[j].radius+.3;
+   if(len<need){const push=Math.min(.25,(need-len)*.22);fx[i]+=dx/len*push;fy[i]+=dy/len*push;fx[j]-=dx/len*push;fy[j]-=dy/len*push}
+  }
+  for(let i=0;i<n;i++){const home=clusters[i].home;xs[i][0]+=fx[i]+(home[0]*spread-xs[i][0])*.012;xs[i][1]+=fy[i]+(home[1]*spread-xs[i][1])*.012}
+ }
+ let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;clusters.forEach((c,i)=>{x0=Math.min(x0,xs[i][0]-c.radius);x1=Math.max(x1,xs[i][0]+c.radius);y0=Math.min(y0,xs[i][1]-c.radius);y1=Math.max(y1,xs[i][1]+c.radius)});const cx=(x0+x1)/2,cy=(y0+y1)/2;
+ clusters.forEach((c,i)=>{const centre=[xs[i][0]-cx,xs[i][1]-cy,xs[i][2]];c.centre=centre;
+  for(const r of c.members){const l=c.local.get(r.id);layoutCache.set(r.id,[centre[0]+l[0],centre[1]+l[1],centre[2]+l[2]])}
+  if(c.members.length>1){clusterLabels.push({text:c.members.find(r=>r.work)?.work.trim()||'',centre,radius:c.radius,ids:c.members.map(r=>r.id)});
+   // Faint threads: around the inner ring, and from each wish star to its nearest done star.
+   for(let i=0;i<c.done.length;i++)if(c.done.length>1&&(c.done.length>2||i===0))link(c.done[i].id,c.done[(i+1)%c.done.length].id,.42);
+   for(const w of c.wish){const pw=layoutCache.get(w.id);const near=(c.done.length?c.done:c.wish.filter(x=>x!==w)).map(o=>({o,d:Math.hypot(pw[0]-layoutCache.get(o.id)[0],pw[1]-layoutCache.get(o.id)[1])})).sort((a,b)=>a.d-b.d)[0];if(near)link(w.id,near.o.id,.22)}
+  }
+ });
+ function link(a,b,w){if(a!==b&&!layoutLinks.some(l=>(l[0]===a&&l[1]===b)||(l[0]===b&&l[1]===a)))layoutLinks.push([a,b,w])}
+ const all=[...layoutCache.values()],maxX=Math.max(...all.map(p=>Math.abs(p[0])),1),maxY=Math.max(...all.map(p=>Math.abs(p[1])),1);
+ fitRatio=Math.min(1,Math.max(.45,Math.min(3.2/maxX,2.05/maxY)*1.08));
+ updateRoleFinder();
+}
+function updateRoleFinder(){const select=$('universe-find-select');if(!select)return;const old=select.value;select.replaceChildren();const initial=document.createElement('option');initial.value='';initial.textContent=`定位角色（${visibleRoles().length}）…`;select.append(initial);for(const r of visibleRoles()){const o=document.createElement('option');o.value=r.id;o.textContent=r.name+(r.status==='wish'?' · 想出':'');select.append(o)}select.value=old&&visibleRoles().some(r=>r.id===old)?old:''}
+$('universe-find-select').addEventListener('change',e=>{if(e.target.value)openRole(e.target.value);e.target.value=''});
+function renderPosition(r){return layoutCache.get(r.id)||[0,0,0]}
+function resize(){DPR=Math.min(2,devicePixelRatio||1);W=canvas.getBoundingClientRect().width;H=canvas.getBoundingClientRect().height;canvas.width=Math.round(W*DPR);canvas.height=Math.round(H*DPR);ctx.setTransform(DPR,0,0,DPR,0,0)}window.addEventListener('resize',resize);resize();
+function proj(p){const [x,y,z]=p,cy=Math.cos(yaw),sy=Math.sin(yaw),cx=Math.cos(pitch),sx=Math.sin(pitch),xx=x*cy+z*sy,zz=-x*sy+z*cy,yy=y*cx-zz*sx,depth=8.6-(y*sx+zz*cx),scale=Math.min(W,H)*1.04/Math.max(4,depth)*zoom*fitRatio;return {x:W*(W<700?.55:.59)+xx*scale,y:H*(W<700?.65:.52)-yy*scale,s:scale,z:depth}}
+function dot(x,y,r,color,a){ctx.globalAlpha=a;ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,Math.max(.2,r),0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
+function draw(){frameNo++;ctx.clearRect(0,0,W,H);const halo=ctx.createRadialGradient(W*.59,H*.48,0,W*.59,H*.48,Math.max(W,H)*.65);halo.addColorStop(0,'#1923363d');halo.addColorStop(1,'#070a1000');ctx.fillStyle=halo;ctx.fillRect(0,0,W,H);
+ if(view==='universe')ensureLayout();
+ for(const st of stardust){const p=proj([st.x,st.y,st.z]);if(p.x<0||p.x>W||p.y<0||p.y>H)continue;dot(p.x,p.y,st.radius,'#c5d9f4',st.alpha)}
+ if(view==='universe'){
+  hits=[];const active=visibleRoles();const occupied=[];let roleLabels=0;if(!active.length){const p=proj([0,0,0]);ctx.font=`${W<700?12:14}px "Microsoft YaHei",sans-serif`;ctx.textAlign='center';ctx.fillStyle='#8ea6c2';ctx.fillText(!roles.length?(ownerUnlocked?'点「添加角色」放上第一颗星':'星图还是空的'):'这个分类下还没有角色',p.x,p.y);requestAnimationFrame(draw);return}
+  const shown=new Set(active.map(r=>r.id));for(const [a,b,strength] of layoutLinks){const ra=roleMap[a],rb=roleMap[b];if(!ra||!rb||!shown.has(a)||!shown.has(b))continue;const pa=renderPosition(ra),pb=renderPosition(rb),bright=hot===a||hot===b?1.9:1;
+   for(let strand=0;strand<(strength>.2?3:1);strand++){ctx.beginPath();for(let t=0;t<=22;t++){const u=t/22,k=Math.sin(Math.PI*u)*Math.sin(strand*3.2+pa[0]*2)*.15,p=proj([pa[0]*(1-u)+pb[0]*u+k,pa[1]*(1-u)+pb[1]*u+k,pa[2]*(1-u)+pb[2]*u+Math.sin(u*Math.PI)*.12]);if(t===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y)}ctx.strokeStyle=`rgba(138,170,221,${strength*.17*bright/(strand+2)})`;ctx.lineWidth=.7;ctx.stroke()}}
+  for(const c of clusterLabels){if(!c.ids.some(id=>shown.has(id)))continue;const p=proj(c.centre),rad=c.radius*p.s*1.05,g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,rad);g.addColorStop(0,'rgba(150,180,225,.075)');g.addColorStop(1,'rgba(150,180,225,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,rad,0,Math.PI*2);ctx.fill()}
+  const nodes=active.map((r,i)=>({r,p:proj(renderPosition(r)),i})).sort((a,b)=>b.p.z-a.p.z);
+  for(const {r,p,i} of nodes){const rr=(18+Math.sqrt(Math.max(1,r.looks.length))*5)*(r.status==='wish'?.73:1)*(p.s/92),color=`rgb(${r.rgb.join(',')})`,hover=hot===r.id;let grad=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,rr*5);grad.addColorStop(0,`rgba(${r.rgb.join(',')},${hover?.21:.12})`);grad.addColorStop(1,`rgba(${r.rgb.join(',')},0)`);ctx.fillStyle=grad;ctx.beginPath();ctx.arc(p.x,p.y,rr*5,0,Math.PI*2);ctx.fill();
+   const c=renderPosition(r);for(const d of getCluster(r)){const floating=reduced?0:Math.sin(frameNo*.004+d.x*9+i)*.02;const q=proj([c[0]+d.x,c[1]+d.y+floating,c[2]+d.z]);dot(q.x,q.y,d.r,color,d.alpha*(hover?1:.78))}
+   ctx.beginPath();ctx.arc(p.x,p.y,Math.max(10,rr),0,Math.PI*2);ctx.strokeStyle=hover?'#bbd6ffb4':r.status==='wish'?'#b2b3d87e':'#b0c6e04e';ctx.lineWidth=.75;ctx.stroke();dot(p.x,p.y,hover?4.2:3,'#eaf4ff',.97);
+   hits.push({id:r.id,x:p.x,y:p.y,r:Math.max(27,rr*1.6),depth:p.z});
+  }
+  // Work names above clusters, then role names. Overlapping labels are skipped; every star stays clickable.
+  const fontSize=W<700?10:12;
+  for(const c of clusterLabels){if(!c.text||!c.ids.some(id=>shown.has(id)))continue;const p=proj([c.centre[0],c.centre[1]+c.radius*.92,c.centre[2]]),y=p.y-6;ctx.font=`${fontSize-1}px "Microsoft YaHei",sans-serif`;ctx.letterSpacing='2px';const w=ctx.measureText(c.text).width+10;ctx.textAlign='center';ctx.fillStyle='#8ea6c2';ctx.globalAlpha=.85;ctx.fillText(c.text,p.x,y);ctx.globalAlpha=1;ctx.letterSpacing='0px';occupied.push({x:p.x,y,w})}
+  for(const {r,p} of [...nodes].sort((a,b)=>a.p.z-b.p.z)){
+   const hover=hot===r.id,rr=(18+Math.sqrt(Math.max(1,r.looks.length))*5)*(r.status==='wish'?.73:1)*(p.s/92),y=p.y+rr+22;
+   ctx.font=`${hover?'600 ':''}${fontSize}px "Microsoft YaHei",sans-serif`;const w=ctx.measureText(r.name).width+8;
+   if(!hover){if(active.length>13&&roleLabels>=Math.max(14,Math.ceil(Math.sqrt(active.length)*4)))continue;
+    if(occupied.some(o=>Math.abs(o.x-p.x)<(o.w+w)/2+4&&Math.abs(o.y-y)<23))continue}
+   ctx.fillStyle=hover?'#ffffff':'#d7e2ef';ctx.textAlign='center';ctx.fillText(r.name,p.x,y);occupied.push({x:p.x,y,w});roleLabels++;
+  }
+ }
+ requestAnimationFrame(draw)
+}draw();
+canvas.addEventListener('pointerdown',e=>{if(view!=='universe')return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,px:e.clientX,py:e.clientY,moved:false};canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointermove',e=>{if(view!=='universe')return;if(drag){let dx=e.clientX-drag.px,dy=e.clientY-drag.py;if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>4)drag.moved=true;yaw+=dx*.004;pitch=Math.max(-.8,Math.min(.8,pitch+dy*.003));drag.px=e.clientX;drag.py=e.clientY}else{const rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;const nearby=hits.filter(h=>Math.hypot(h.x-x,h.y-y)<h.r).sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y));hot=nearby[0]?.id||null;canvas.style.cursor=hot?'pointer':'grab'}});
+canvas.addEventListener('pointerup',e=>{if(!drag)return;const moved=drag.moved;drag=null;if(moved)return;const rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top,h=hits.filter(h=>Math.hypot(h.x-x,h.y-y)<h.r).sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0];if(h)openRole(h.id)});
+canvas.addEventListener('wheel',e=>{if(view!=='universe')return;e.preventDefault();zoom=Math.max(.65,Math.min(1.9,zoom*(e.deltaY<0?1.08:.92)))},{passive:false});
+
+
+// Management desk: shoot records, lenses and gear. Stored only inside the encrypted vault.
+const DEFAULT_GEAR=['假发 / 发网','服装','鞋袜','道具','美瞳','妆容 / 假睫毛','配饰 / 饰品','拍摄确认'];
+function sanitizeAdminRecord(x){
+ if(!x||typeof x!=='object')return null;
+ let id=String(x.id||uid()).slice(0,120),rid=String(x.roleId||'').slice(0,120),lid=String(x.lookId||'').slice(0,120);
+ let gear=(Array.isArray(x.gear)?x.gear:DEFAULT_GEAR.map(t=>({text:t,done:false}))).slice(0,40).map(g=>({text:String(g?.text||'').slice(0,80),done:!!g?.done})).filter(g=>g.text);
+ return {id,roleId:rid,lookId:lid,date:/^\d{4}-\d\d-\d\d$/.test(x.date||'')?x.date:'',status:x.status==='done'?'done':'planned',lensName:String(x.lensName||'').slice(0,120),lensColor:String(x.lensColor||'').slice(0,100),lensNotes:String(x.lensNotes||'').slice(0,200),notes:String(x.notes||'').slice(0,900),gear};
+}
+let adminSessions=[];
+function setAdminSessions(items){adminSessions=items.slice(0,1500).map(sanitizeAdminRecord).filter(Boolean);saveAdminSessions()}
+function saveAdminSessions(){if(ownerUnlocked){dirty=true;updateDirty()}}
+let adminEditing=null,adminGear=DEFAULT_GEAR.map(text=>({text,done:false}));
+function setAdminOpen(open){$('admin-workbench').hidden=!open;if(open){refreshAdmin();$('open-admin').classList.add('active')}else $('open-admin').classList.remove('active')}
+$('open-admin').onclick=()=>{if(!ownerUnlocked){openAccessGate('owner');return}setAdminOpen($('admin-workbench').hidden);};
+$('admin-close').onclick=()=>setAdminOpen(false);
+$('admin-add-character').onclick=()=>{setAdminOpen(false);$('add-role').click()};
+function validAdminRecords(){return adminSessions.filter(s=>roles.some(r=>r.id===s.roleId&&r.looks.some(l=>l.id===s.lookId)))}
+function adminRefreshRoles(){let list=$('admin-role'),prev=list.value;list.replaceChildren();roles.forEach(r=>{let o=document.createElement('option');o.value=r.id;o.textContent=r.name+(r.status==='wish'?' · 想出':'');list.append(o)});list.value=roles.some(r=>r.id===prev)?prev:(role?.id||roles[0]?.id||'');adminRefreshLooks()}
+function adminRefreshLooks(){const list=$('admin-look'),prev=list.value,r=roles.find(x=>x.id===$('admin-role').value);list.replaceChildren();(r?.looks||[]).forEach(l=>{let o=document.createElement('option');o.value=l.id;o.textContent=l.title+(l.status==='wish'?' · 待出':'');list.append(o)});if(r?.looks.some(l=>l.id===prev))list.value=prev}
+function adminGearRender(){const container=$('admin-gear-list');container.replaceChildren();adminGear.forEach((g,i)=>{const label=document.createElement('label');label.className='admin-check';const box=document.createElement('input');box.type='checkbox';box.checked=g.done;box.onchange=()=>{adminGear[i].done=box.checked;span.classList.toggle('done',box.checked)};const span=document.createElement('span');span.textContent=g.text;span.className=g.done?'done':'';label.append(box,span);container.append(label)})}
+$('admin-role').onchange=()=>{adminRefreshLooks();refreshAdminList()};$('admin-look').onchange=refreshAdminList;
+$('admin-gear-add').onclick=()=>{const input=$('admin-custom-gear'),v=input.value.trim();if(!v)return;if(adminGear.length>=40){toast('最多 40 项');return}if(adminGear.some(g=>g.text===v)){toast('已经有这一项了');return}adminGear.push({text:v,done:false});input.value='';adminGearRender()};
+$('admin-custom-gear').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('admin-gear-add').click()}});
+function adminClear(preRole,preLook){adminEditing=null;const f=$('admin-form');f.reset();$('admin-form-title').textContent='新建拍摄记录';$('admin-delete').disabled=true;adminRefreshRoles();if(preRole&&roleMap[preRole]){$('admin-role').value=preRole;adminRefreshLooks()}if(preLook&&roles.find(x=>x.id===$('admin-role').value)?.looks.some(x=>x.id===preLook))$('admin-look').value=preLook;adminGear=DEFAULT_GEAR.map(text=>({text,done:false}));adminGearRender()}
+function adminOpenRecord(id){const rec=adminSessions.find(s=>s.id===id);if(!rec)return;adminClear(rec.roleId,rec.lookId);adminEditing=id;$('admin-form-title').textContent='编辑记录';$('admin-delete').disabled=false;
+ $('admin-date').value=rec.date;$('admin-status').value=rec.status;$('admin-lens-name').value=rec.lensName;$('admin-lens-color').value=rec.lensColor;$('admin-lens-notes').value=rec.lensNotes;$('admin-session-notes').value=rec.notes;adminGear=rec.gear.map(g=>({...g}));adminGearRender();
+ $('admin-role').value=rec.roleId;adminRefreshLooks();$('admin-look').value=rec.lookId;refreshAdminStats();refreshAdminList();
+}
+function refreshAdminStats(){renderHeat();const records=validAdminRecords(),used=new Set(records.filter(s=>s.status==='done'&&s.lensName.trim()).map(s=>s.lensName.trim().toLocaleLowerCase()));$('admin-count-roles').textContent=roles.length;$('admin-count-wishes').textContent=roles.reduce((acc,r)=>acc+r.looks.filter(l=>l.status==='wish').length,0);$('admin-count-sessions').textContent=records.length;$('admin-count-lenses').textContent=used.size;
+ const map=new Map();for(const s of records.filter(s=>s.status==='done'&&s.lensName.trim())){const key=(s.lensName+' '+s.lensColor).trim().toLocaleLowerCase();const found=map.get(key)||{name:s.lensName,color:s.lensColor,count:0};found.count++;map.set(key,found)}
+ const list=$('admin-lens-list');list.replaceChildren();if(!map.size){const empty=document.createElement('div');empty.className='admin-empty';empty.textContent='还没有已拍摄的美瞳记录。';list.append(empty)}else [...map.values()].sort((a,b)=>b.count-a.count).forEach(v=>{const row=document.createElement('div');row.className='admin-lens-row';const text=document.createElement('span');text.textContent=v.name+(v.color?' · '+v.color:'');const small=document.createElement('small');small.textContent=v.count+' 次';row.append(text,small);list.append(row)})}
+function refreshAdminList(){
+ const list=$('admin-records');list.replaceChildren();
+ for(const r of roles)for(const l of r.looks){
+  const matches=adminSessions.filter(s=>s.roleId===r.id&&s.lookId===l.id).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const img=l.images?.original||l.artURL||r.artURL||l.images?.cos;
+  const item=document.createElement('button');item.type='button';item.className='admin-look-tile'+(r.id===$('admin-role').value&&l.id===$('admin-look').value?' selected':'');
+  const image=document.createElement('div');image.className='admin-tile-image';
+  if(img){const picture=document.createElement('img');picture.src=img;picture.alt=r.name+' · '+l.title;picture.loading='lazy';image.append(picture)}
+  else{const icon=document.createElement('div');icon.style.cssText='color:#657b99;font-size:35px';icon.textContent='✧';image.append(icon)}
+  const tag=document.createElement('span');tag.textContent=l.status==='wish'?'想出':'已出';image.append(tag);
+  const body=document.createElement('div');body.className='admin-tile-content';const name=document.createElement('strong');name.textContent=r.name;const look=document.createElement('small');look.textContent=l.title;const foot=document.createElement('span');foot.className='tile-status';foot.textContent=matches.length?'记录 '+matches.length+' 次':'暂无记录';body.append(name,look,foot);item.append(image,body);
+  item.onclick=()=>{if(matches.length)adminOpenRecord(matches[0].id);else adminClear(r.id,l.id);refreshAdminList();$('admin-form').scrollIntoView({behavior:'smooth',block:'nearest'})};list.append(item)
+ }
+}
+// Heatmap: rows are works, columns are years (or calendar months summed over all years).
+let heatMode='year';
+document.querySelectorAll('[data-heat]').forEach(b=>b.onclick=()=>{heatMode=b.dataset.heat;renderHeat()});
+function renderHeat(){
+ document.querySelectorAll('[data-heat]').forEach(b=>{b.classList.toggle('active',b.dataset.heat===heatMode);b.setAttribute('aria-pressed',String(b.dataset.heat===heatMode))});
+ const events=[],dated=new Set();
+ for(const s of validAdminRecords()){if(s.status!=='done'||!s.date)continue;const r=roleMap[s.roleId];events.push({work:r.work||r.name,year:Number(s.date.slice(0,4)),month:Number(s.date.slice(5,7))});dated.add(s.lookId)}
+ for(const r of roles)for(const l of r.looks){if(l.status!=='done'||dated.has(l.id))continue;if(l.shotDate)events.push({work:r.work||r.name,year:Number(l.shotDate.slice(0,4)),month:Number(l.shotDate.slice(5,7))});else if(heatMode==='year'&&l.cosYear)events.push({work:r.work||r.name,year:l.cosYear,month:0})}
+ const list=heatMode==='month'?events.filter(e=>e.month):events,grid=$('heat-grid');grid.replaceChildren();grid.style.gridTemplateColumns='';
+ $('heat-desc').textContent=heatMode==='year'?'每格是那一年出的次数。日期优先取拍摄记录，其次是照片的拍摄时间，最后是 COS 年份。':'每格是那个月出的次数，所有年份加在一起。日期来自拍摄记录或照片的拍摄时间。';
+ if(!list.length){const empty=document.createElement('div');empty.className='admin-empty';empty.textContent=heatMode==='year'?'还没有数据。给造型填 COS 年份，或添加带日期的拍摄记录。':'还没有带日期的记录或照片。';grid.append(empty);return}
+ let cols;if(heatMode==='year'){const ys=list.map(e=>e.year),lo=Math.min(...ys),hi=Math.max(...ys);cols=[];for(let y=lo;y<=hi;y++)cols.push(y)}else cols=[1,2,3,4,5,6,7,8,9,10,11,12];
+ const key=e=>heatMode==='year'?e.year:e.month,label=c=>heatMode==='year'?String(c):c+'月';
+ const works=[...new Set(list.map(e=>e.work))].map(w=>({w,total:list.filter(e=>e.work===w).length})).sort((a,b)=>b.total-a.total||a.w.localeCompare(b.w,'zh'));
+ const count=(w,c)=>list.filter(e=>(w==null||e.work===w)&&key(e)===c).length;
+ let max=1;for(const {w} of works)for(const c of cols)max=Math.max(max,count(w,c));
+ grid.style.gridTemplateColumns=`minmax(80px,max-content) repeat(${cols.length},minmax(34px,64px)) 40px`;
+ const cell=(cls,text,title)=>{const d=document.createElement('div');d.className=cls;d.textContent=text;if(title)d.title=title;grid.append(d);return d};
+ cell('hl','');cols.forEach(c=>cell('hl',label(c)));cell('hl','合计');
+ for(const {w,total} of works){cell('hn',w,w);for(const c of cols){const n=count(w,c),d=cell('hc',n?String(n):'',`${w} · ${label(c)}：${n} 次`);d.dataset.level=n?String(Math.max(1,Math.ceil(n/max*4))):'0'}cell('ht',String(total))}
+ cell('hn hfoot','合计');for(const c of cols)cell('hl hfoot',String(count(null,c)||''));cell('ht',String(list.length));
+}
+function refreshAdmin(){adminRefreshRoles();refreshAdminStats();refreshAdminList();if(!adminEditing)adminClear(role?.id,selected)}
+$('admin-create').onclick=()=>{adminClear(role?.id,selected);refreshAdminList();$('admin-form').scrollIntoView({behavior:'smooth',block:'nearest'})};
+$('admin-form').onsubmit=e=>{e.preventDefault();const rid=$('admin-role').value,lid=$('admin-look').value;if(!roles.some(r=>r.id===rid&&r.looks.some(l=>l.id===lid))){toast('先选择角色和造型');return}
+ const rec={id:adminEditing||uid(),roleId:rid,lookId:lid,date:$('admin-date').value,status:$('admin-status').value,lensName:$('admin-lens-name').value.trim(),lensColor:$('admin-lens-color').value.trim(),lensNotes:$('admin-lens-notes').value.trim(),notes:$('admin-session-notes').value.trim(),gear:adminGear.map(g=>({...g}))};
+ const index=adminSessions.findIndex(s=>s.id===rec.id);if(index<0)adminSessions.push(rec);else adminSessions[index]=rec;adminEditing=rec.id;saveAdminSessions();refreshAdminStats();refreshAdminList();$('admin-delete').disabled=false;$('admin-form-title').textContent='编辑记录';toast('已保存');
+};
+$('admin-delete').onclick=()=>{if(!adminEditing||!confirm('删除这条拍摄记录？'))return;adminSessions=adminSessions.filter(s=>s.id!==adminEditing);saveAdminSessions();adminClear();refreshAdminStats();refreshAdminList();toast('记录已删除')};
+
+
+// Data files (all produced by build.py in the private repo):
+//   public.json          everyone: done looks only, processed photos
+//   vault.enc.json       owner password: every role, wish looks, shoot records
+//   wishlist-share.json  friends' passphrase: wish looks and gear status
+const enc=new TextEncoder(),dec=new TextDecoder(),fromB64=str=>Uint8Array.from(atob(str),x=>x.charCodeAt(0));
+const normalizeSecret=s=>s.normalize('NFKC').trim();
+async function unlockPayload(pass,box){const base=await crypto.subtle.importKey('raw',enc.encode(normalizeSecret(pass)),'PBKDF2',false,['deriveKey']);const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:fromB64(box.s),iterations:box.iterations,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:fromB64(box.n)},key,fromB64(box.d));return JSON.parse(dec.decode(plain))}
+function downloadJSON(filename,obj){const url=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+async function fetchJSON(name){if(location.protocol==='file:')throw Error('请用本地服务器打开页面');let res;try{res=await fetch(name,{cache:'no-store'})}catch{throw Error('读取 '+name+' 失败')}if(!res.ok)throw Error('网站上还没有 '+name);return res.json()}
+function updateDirty(){$('admin-dirty').textContent=dirty?'有改动还没导出':'';$('open-admin').classList.toggle('has-changes',dirty)}
+window.addEventListener('beforeunload',e=>{if(ownerUnlocked&&dirty){e.preventDefault();e.returnValue=''}});
+function applyRoles(list){roles.splice(0,roles.length,...list);role=roles[0];rebuildMap();selected=role?.looks[0]?.id||null;updateUniverseUI();updateRoleFinder();if(view==='character')role?openRole(role.id):setScreen('universe')}
+async function loadPublic(){try{const data=await fetchJSON('public.json');if(data.format!=='COS-ATLAS-PUBLIC-V14'||!Array.isArray(data.roles))throw Error('public.json 格式不对');const list=normalizeRoles(data.roles);publicRoles=list;if(!ownerUnlocked)applyRoles(JSON.parse(JSON.stringify(list)))}catch(err){publicRoles=[];console.info(err.message)}}
+async function openOwner(pass){if(!crypto.subtle)throw Error('需要在 HTTPS 或 localhost 下打开');const box=await fetchJSON('vault.enc.json');if(box.format!=='COS-ATLAS-VAULT-V14')throw Error('vault.enc.json 格式不对');const data=await unlockPayload(pass,box);const list=normalizeRoles(data.roles||[]);
+ ownerUnlocked=true;dirty=false;sharedWishlist=null;adminSessions=(Array.isArray(data.sessions)?data.sessions:[]).map(sanitizeAdminRecord).filter(Boolean);applyRoles(list);document.body.classList.remove('owner-locked');$('owner-lock').hidden=false;updateDirty();closeGate();setScreen('universe');setAdminOpen(true);toast('已解锁')}
+function lockOwner(){if(!ownerUnlocked)return;if(dirty&&!confirm('有改动还没导出，锁定后会丢失。继续？'))return;setAdminOpen(false);ownerUnlocked=false;dirty=false;updateDirty();adminSessions=[];sharedWishlist=null;applyRoles(JSON.parse(JSON.stringify(publicRoles||[])));document.body.classList.add('owner-locked');$('owner-lock').hidden=true;setScreen('universe');$('wishlist-grid').replaceChildren();$('gallery').classList.remove('open');$('photo-viewer').classList.remove('open');toast('已锁定')}
+$('owner-lock').onclick=lockOwner;
+$('wish-lock').onclick=()=>{sharedWishlist=null;$('wishlist-grid').replaceChildren();setScreen('universe');toast('已锁定')};
+$('admin-export').onclick=()=>{if(!ownerUnlocked)return;const clean=roles.map(r=>({...r,looks:r.looks.map(({images,...l})=>l)}));downloadJSON('atlas.json',{format:'COS-ATLAS-DATA-V14',exported:new Date().toISOString(),roles:clean,sessions:adminSessions});dirty=false;updateDirty();toast('已导出 atlas.json')};
+const GATE={owner:{title:'主人密码',label:'密码',submit:'解锁'},wish:{title:'搭子暗号',label:'暗号',submit:'查看清单'}};
+function openAccessGate(kind){gatePurpose=kind;const g=GATE[kind];$('gate-heading').textContent=g.title;$('gate-label-text').textContent=g.label;$('gate-submit').textContent=g.submit;$('gate-note').textContent='';$('gate-password').value='';$('access-gate').hidden=false;setTimeout(()=>$('gate-password').focus(),50)}
+function closeGate(){$('access-gate').hidden=true;$('gate-password').value='';gatePurpose=''}
+$('gate-close').onclick=closeGate;
+$('access-gate').onclick=e=>{if(e.target===$('access-gate'))closeGate()};
+async function openSharedWishlist(password){const box=await fetchJSON('wishlist-share.json');if(box.format!=='COS-ATLAS-WISH-SEALED-V12')throw Error('wishlist-share.json 格式不对');let data;try{data=await unlockPayload(password,box)}catch{throw Error('暗号不正确')}if(data.format!=='COS-ATLAS-WISHLIST'||!Array.isArray(data.entries))throw Error('文件内容不对');sharedWishlist=data.entries;closeGate();setScreen('wishlist')}
+function renderSharedWishlist(){const grid=$('wishlist-grid');grid.replaceChildren();grid.classList.add('wish-share-readonly');const q=$('wish-search').value.toLowerCase();const entries=(sharedWishlist||[]).filter(e=>[e.name,e.work,e.source,e.title].join(' ').toLowerCase().includes(q));for(const item of entries){const node=document.createElement('article');node.className='wish-item';const figure=document.createElement('div');figure.className='wish-preview';figure.style.cssText='min-height:170px;display:flex;align-items:center;justify-content:center;background:#101925';if(item.image&&(item.image.startsWith('data:image/')||goodURL(item.image))){const img=document.createElement('img');img.src=item.image;img.alt=item.name;img.style.cssText='width:100%;height:100%;object-fit:cover;max-height:290px';figure.append(img)}else{figure.textContent='✧';figure.style.fontSize='40px';figure.style.color='#657990'}const name=document.createElement('h3');name.className='wish-name';name.textContent=item.name;const src=document.createElement('div');src.className='wish-source';src.textContent=[item.work,item.source,item.title].filter(Boolean).join(' · ');const gear=document.createElement('div');gear.className='wish-gear';for(const [id,label] of WISH_GEAR){const state=GEAR_STATES.includes(item.gear?.[id])?item.gear[id]:'none';const pill=document.createElement('span');pill.className='gear-tag';pill.dataset.state=state;const dot=document.createElement('i');dot.className='gear-dot';const txt=document.createElement('span');txt.style.padding='0 3px 0 1px';txt.textContent=label+(GEAR_LABELS[state]?' · '+GEAR_LABELS[state]:'');pill.append(dot,txt);gear.append(pill)}node.append(figure,name,src,gear);grid.append(node)}if(!entries.length){const t=document.createElement('div');t.className='wish-empty';t.textContent=q?'没有符合的造型':'清单还是空的';grid.append(t)}}
+$('gate-form').onsubmit=async e=>{e.preventDefault();const password=$('gate-password').value,btn=$('gate-submit');btn.disabled=true;$('gate-note').textContent='正在解锁…';try{
+ if(gatePurpose==='owner')await openOwner(password);else if(gatePurpose==='wish')await openSharedWishlist(password);
+ }catch(err){$('gate-note').textContent=err.name==='OperationError'?(gatePurpose==='wish'?'暗号不正确':'密码不正确'):(err.message||'解锁失败')}finally{btn.disabled=false}};
+document.body.classList.add('owner-locked');
+setScreen('universe');updateUniverseUI();loadPublic();
+})();
+</script>
+</body>
+</html>
